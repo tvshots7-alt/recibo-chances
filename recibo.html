@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Recibo de Chances</title>
+  <!-- Versión actual del recibo -->
+  <meta name="ota-version" content="1.0.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --primary:#9c2e5a; --primary-light:#c0406e; --primary-bg:#fff0f5;
+      --primary-border:#dbb9c8; --primary-dark:#1a0a12; --primary-shadow:rgba(156,46,90,0.18);
+      --green:#00875a; --green-light:#e6f7f1; --gray:#6b7280; --white:#fff; --dark:#1a1a2e;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{background:linear-gradient(135deg,var(--primary-dark) 0%,#2a1020 50%,var(--primary-dark) 100%);min-height:100vh;font-family:'DM Sans',sans-serif;display:flex;justify-content:center;align-items:flex-start;padding:10px 6px 60px;transition:background .4s}
+
+    .ticket{width:100%;max-width:400px;background:var(--white);border-radius:14px;overflow:hidden;box-shadow:0 12px 36px var(--primary-shadow),0 0 0 1px rgba(0,0,0,0.07);position:relative}
+    .ticket::before,.ticket::after{content:'';position:absolute;width:16px;height:16px;background:var(--primary-dark);border-radius:50%;top:46%;z-index:10}
+    .ticket::before{left:-8px}.ticket::after{right:-8px}
+
+    .header{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);padding:9px 13px 18px;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
+    .header::after{content:'';position:absolute;bottom:-14px;left:0;right:0;height:28px;background:var(--white);border-radius:50% 50% 0 0/100% 100% 0 0}
+    .header-left h1{font-family:'Bebas Neue',sans-serif;font-size:22px;color:rgba(255,255,255,.95);letter-spacing:3px;line-height:1}
+    .header-left p{font-size:9px;color:rgba(255,255,255,.7);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+    .numero-recibo{text-align:right}
+    .numero-recibo .label{font-size:8px;color:rgba(255,255,255,.65);letter-spacing:1.5px;text-transform:uppercase}
+    .numero-recibo .num{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+    .ticket-body{padding:12px 10px 10px}
+
+    .info-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:5px;margin-bottom:9px}
+    .info-field{display:flex;flex-direction:column;gap:1px}
+    .info-field label{font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);opacity:.8}
+    .info-field input{border:none;border-bottom:1.5px solid var(--primary-border);padding:2px 2px;font-size:12px;font-weight:700;color:var(--dark);font-family:'DM Sans',sans-serif;background:transparent;width:100%;text-align:center}
+    .info-field input:focus{outline:none;border-color:var(--primary)}
+
+    .sep{display:flex;align-items:center;gap:5px;margin:2px 0 7px}
+    .sep-line{flex:1;height:1px;background:var(--primary-border)}
+    .sep-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);opacity:.5}
+
+    .section-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+    .section-title{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary)}
+    .lot-btns{display:flex;align-items:center;gap:3px}
+    .btn-edit-lot{font-size:10px;font-weight:700;color:var(--primary);background:var(--primary-bg);border:1.5px solid var(--primary-border);border-radius:20px;padding:2px 8px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .btn-edit-lot.activo{background:var(--primary);color:white;border-color:var(--primary)}
+    .btn-rest-lot{font-size:9px;color:var(--gray);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline;padding:0 0 0 4px}
+    .btn-add-lot{font-size:10px;font-weight:700;color:#fff;background:var(--green);border:none;border-radius:20px;padding:2px 8px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .btn-add-lot:active{opacity:.8}
+
+    .add-lot-form{display:none;align-items:center;gap:5px;margin-bottom:6px;background:var(--primary-bg);border:1.5px solid var(--primary-border);border-radius:7px;padding:5px 7px}
+    .add-lot-form.open{display:flex}
+    .add-lot-form input{flex:1;border:none;border-bottom:2px solid var(--primary-border);background:transparent;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;color:var(--dark);padding:2px 3px}
+    .add-lot-form input:focus{outline:none;border-color:var(--primary)}
+    .add-lot-form button{font-size:10px;font-weight:700;font-family:'DM Sans',sans-serif;border:none;border-radius:14px;padding:4px 9px;cursor:pointer}
+    .btn-confirm-lot{background:var(--primary);color:#fff}
+    .btn-cancel-lot{background:#e5e7eb;color:#374151}
+
+    .tabla-loterias{width:100%;border-collapse:separate;border-spacing:2px;margin-bottom:8px}
+    .tabla-loterias td{border:1.5px solid var(--primary-border);border-radius:3px;text-align:center;padding:3px 1px;font-size:9.5px;font-weight:600;color:#555;cursor:pointer;user-select:none;background:#fafafa;position:relative;transition:all .15s}
+    .tabla-loterias td:active{transform:scale(.90)}
+    .tabla-loterias td.activa{background:var(--green-light);color:var(--green);border-color:var(--green);font-weight:700}
+    .tabla-loterias td.activa::after{content:"✓";position:absolute;top:0;right:2px;font-size:6px;color:var(--green);font-weight:900}
+    .tabla-loterias td.edit-mode{border-color:#f87171 !important;background:#fff5f5 !important;color:#ef4444 !important}
+    .tabla-loterias td.edit-mode::before{content:"✕";position:absolute;top:0;right:2px;font-size:7px;color:#ef4444;font-weight:900}
+    .tabla-loterias td.oculta{display:none}
+    .tabla-loterias td.custom-lot{border-style:dashed}
+
+    /* TABLA NÚMEROS — 7 cols: N1 N2 N3 N4 N5 | VLR | TOTAL */
+    .numeros{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:7px;border:1.5px solid var(--primary-border);border-radius:7px;overflow:hidden}
+    .numeros thead tr{background:linear-gradient(90deg,var(--primary),var(--primary-light))}
+    .numeros thead td{padding:4px 1px;font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.92);text-align:center;border:none}
+    .numeros thead td.th-vf{background:rgba(0,0,0,.18)}
+    .numeros thead td.th-tf{background:rgba(0,135,90,.35)}
+    .numeros tbody tr{border-top:1px solid var(--primary-border)}
+    .numeros tbody tr:nth-child(even) td{background:#fdf5f8}
+    .numeros tbody td{padding:2px 1px;border-right:1px solid var(--primary-border);text-align:center;background:var(--white);position:relative}
+    .numeros tbody td:last-child{border-right:none}
+    .numeros tbody td input{width:100%;border:none;text-align:center;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;color:var(--dark);background:transparent;padding:2px 0}
+    .numeros tbody td input:focus{outline:none}
+    .numeros tbody td.col-vf{background:#fdf5f8}
+    .numeros tbody td.col-vf input{color:var(--primary);font-weight:700}
+    .numeros tbody td.col-tf{background:#f0fdf4}
+    .numeros tbody td.col-tf input{color:var(--green);font-weight:800;pointer-events:none}
+    .numeros tbody td.circulado{background:rgba(156,46,90,.07) !important}
+    .numeros tbody td.circulado::before{content:'';position:absolute;inset:1px;border:2px solid var(--primary);border-radius:50%;pointer-events:none;animation:popCircle .22s cubic-bezier(.34,1.56,.64,1)}
+    .numeros tbody td.circulado input{color:var(--primary) !important;font-weight:800 !important}
+    @keyframes popCircle{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+    .badge-nums{position:absolute;top:0;left:1px;font-size:6px;font-weight:800;color:var(--primary);opacity:.65;pointer-events:none}
+
+    .btn-add-row{width:100%;padding:4px;font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-bg);border:1.5px dashed var(--primary-border);border-radius:0 0 7px 7px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.5px;transition:all .15s;margin-top:-2px;margin-bottom:8px}
+    .btn-add-row:active{background:var(--primary);color:white}
+
+    .total-box{display:flex;justify-content:space-between;align-items:center;background:var(--primary-bg);border:2px solid var(--primary);border-radius:9px;padding:6px 12px;margin-bottom:11px}
+    .total-label{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--primary)}
+    .total-right{display:flex;align-items:center;gap:3px}
+    .total-sign{font-size:14px;font-weight:700;color:var(--green)}
+    #total{font-size:18px;font-weight:700;color:var(--green);border:none;background:transparent;text-align:right;width:110px;font-family:'DM Sans',sans-serif}
+    #total:focus{outline:none}
+
+    .botones{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 6px;border:none;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1)}
+    .btn:active{transform:scale(.92)}
+    .btn-icon{font-size:14px}
+    .btn-guardar-imprimir{grid-column:1/-1;background:linear-gradient(135deg,#1a237e,#3949ab);color:white;box-shadow:0 4px 14px rgba(26,35,126,.35);font-size:13px;padding:12px}
+    .btn-whatsapp{background:linear-gradient(135deg,#00a651,#25D366);color:white}
+    .btn-foto{background:linear-gradient(135deg,#0088cc,#29b6f6);color:white}
+    .btn-copiar{background:linear-gradient(135deg,#e63946,#c1121f);color:white}
+    .btn-historial{background:linear-gradient(135deg,#5b4ae0,#7b61ff);color:white}
+    .btn-temas{grid-column:1/-1;background:linear-gradient(135deg,#e8a22a,#f4c542);color:white}
+    .btn-limpiar{grid-column:1/-1;background:linear-gradient(135deg,#475569,#334155);color:white}
+
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;backdrop-filter:blur(5px);justify-content:center;align-items:flex-end}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-header{padding:14px 16px 12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+    .modal-header h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:white}
+    .modal-close{background:rgba(255,255,255,.2);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .modal-body{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
+
+    .historial-item{border:1.5px solid var(--primary-border);border-radius:10px;padding:8px 10px;margin-bottom:7px;background:#fafafa}
+    .hi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+    .hi-recibo{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--primary);letter-spacing:1px}
+    .hi-fecha{font-size:10px;color:var(--gray);font-weight:600}
+    .hi-total{font-size:13px;font-weight:700;color:var(--green)}
+    .hi-loterias{font-size:9px;color:var(--gray);margin-top:2px}
+    .empty-state{text-align:center;color:var(--gray);padding:30px 16px;font-size:12px}
+    .empty-state .es-icon{font-size:30px;margin-bottom:6px}
+
+    .temas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0 12px}
+    .tema-card{border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all .2s;position:relative;min-height:68px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .tema-card.activo{border-color:#222 !important;transform:scale(1.04)}
+    .tema-card.activo::after{content:'✓';position:absolute;top:3px;right:5px;font-size:12px;font-weight:900;color:#222}
+    .tema-swatch{width:28px;height:28px;border-radius:50%;margin:0 auto 4px;border:2px solid rgba(0,0,0,.1)}
+    .tema-name{font-size:9px;font-weight:700}
+    .custom-color-row{display:flex;align-items:center;gap:8px;padding:10px;background:#f9f9f9;border-radius:10px;border:1.5px solid #e5e7eb;margin-top:4px}
+    .custom-color-row label{font-weight:700;font-size:11px;color:#333;flex:1}
+    .custom-color-row input[type=color]{width:40px;height:40px;border:none;border-radius:50%;cursor:pointer;background:none;padding:0}
+    .btn-aplicar-color{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+    #fotoCanvas{max-width:100%;border-radius:8px;box-shadow:0 5px 16px rgba(0,0,0,.14)}
+    .foto-btns{display:flex;gap:8px;width:100%}
+    .foto-btns .btn{flex:1;font-size:12px;padding:10px}
+
+    .bt-header-azul{background:linear-gradient(135deg,#1a237e,#3949ab) !important}
+    .bt-loading{text-align:center;padding:20px}
+    .bt-spinner{width:30px;height:30px;border:3px solid var(--primary-border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .bt-device{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1.5px solid var(--primary-border);border-radius:10px;margin-bottom:7px;background:#fafafa;cursor:pointer}
+    .bt-device-name{font-weight:700;font-size:12px;color:var(--dark)}
+    .bt-device-mac{font-size:9px;color:var(--gray);font-family:monospace}
+    .bt-device-arrow{font-size:18px;color:var(--primary)}
+    .bt-empty{text-align:center;color:var(--gray);padding:24px 16px;font-size:12px}
+    .bt-tip{background:#f0f4ff;border:1px solid #c7d2fe;border-radius:9px;padding:9px 11px;font-size:10px;color:#3730a3;margin-top:8px;line-height:1.5}
+
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;color:white;padding:8px 18px;border-radius:50px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none}
+    .toast.show{transform:translateX(-50%) translateY(0)}
+
+    .numero-recibo .num.flip-out{animation:flipOut .18s ease-in forwards}
+    .numero-recibo .num.flip-in{animation:flipIn .22s ease-out forwards}
+    @keyframes flipOut{0%{transform:translateY(0) scaleY(1);opacity:1}100%{transform:translateY(-10px) scaleY(.4);opacity:0}}
+    @keyframes flipIn{0%{transform:translateY(10px) scaleY(.4);opacity:0}100%{transform:translateY(0) scaleY(1);opacity:1}}
+
+    .pv{display:none}
+
+    /* ── Tabla de impresión — oculta en pantalla, visible solo al imprimir ── */
+    .print-numeros{display:none}
+
+    @media print {
+      @page{size:80mm auto;margin:3mm 2mm}
+      *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+      html,body{background:white !important;margin:0 !important;padding:0 !important;width:80mm !important}
+      body>*:not(.ticket){display:none !important}
+      .ticket{box-shadow:none !important;border-radius:0 !important;max-width:100% !important;width:100% !important;position:static !important}
+      .ticket::before,.ticket::after{display:none !important}
+      .header{background:var(--primary) !important;padding:6px 8px 14px !important}
+      .header::after{display:none !important}
+      .header-left h1{font-size:16px !important;color:white !important}
+      .header-left p{color:rgba(255,255,255,.8) !important;font-size:7px !important}
+      .numero-recibo .num{font-size:20px !important;color:white !important}
+      .numero-recibo .label{color:rgba(255,255,255,.7) !important;font-size:6px !important}
+      .ticket-body{padding:6px 5px 5px !important}
+
+      /* Ocultar controles de pantalla */
+      .botones,.modal-overlay,.toast,.btn-add-row,.btn-edit-lot,.btn-rest-lot,
+      .btn-add-lot,.add-lot-form,.badge-nums,.section-title{display:none !important}
+
+      /* Loterías */
+      .tabla-loterias td.oculta{display:none !important}
+      .tabla-loterias td{padding:3px 2px !important;font-size:9px !important;border:1px solid #ccc !important;border-radius:2px !important}
+      .tabla-loterias td:not(.activa){color:#ccc !important;background:white !important}
+      .tabla-loterias td.activa{background:#e8f5e9 !important;color:#2e7d32 !important;border:1.5px solid #43a047 !important;font-weight:700 !important}
+
+      /* Info fields */
+      .info-field input{display:none !important}
+      .pv{display:block !important;font-size:11px !important;font-weight:700 !important;text-align:center !important;color:#222 !important}
+
+      /* Ocultar la tabla original de números — la reemplaza .print-numeros */
+      .numeros, .btn-add-row{display:none !important}
+
+      /* ── Tabla de impresión: layout amplio con columnas generosas ── */
+      .print-numeros{
+        display:table !important;
+        width:100% !important;
+        border-collapse:collapse !important;
+        margin-bottom:6px !important;
+        border:1.5px solid #bbb !important;
+      }
+      .print-numeros thead tr{background:var(--primary) !important}
+      .print-numeros thead td{
+        color:white !important;
+        font-size:9px !important;
+        font-weight:700 !important;
+        text-transform:uppercase !important;
+        padding:4px 3px !important;
+        text-align:center !important;
+        letter-spacing:.3px !important;
+        border:none !important;
+      }
+      .print-numeros thead td.th-nums{background:rgba(0,0,0,.15) !important}
+      .print-numeros thead td.th-vlr{background:rgba(0,0,0,.25) !important;width:22% !important}
+      .print-numeros thead td.th-tot{background:rgba(0,135,90,.5) !important;width:22% !important}
+      .print-numeros tbody tr{border-top:1px solid #ddd !important}
+      .print-numeros tbody tr:nth-child(even){background:#fdf5f8 !important}
+      .print-numeros tbody td{
+        padding:5px 4px !important;
+        text-align:center !important;
+        vertical-align:middle !important;
+        font-size:13px !important;
+        font-weight:700 !important;
+        color:#111 !important;
+        border-right:1px solid #e0e0e0 !important;
+        font-family:'DM Sans',Arial,sans-serif !important;
+        white-space:nowrap !important;
+      }
+      .print-numeros tbody td:last-child{border-right:none !important}
+      .print-numeros tbody td.pn-nums{
+        text-align:left !important;
+        font-size:13px !important;
+        letter-spacing:.5px !important;
+        padding-left:6px !important;
+      }
+      .print-numeros tbody td.pn-nums .circ{
+        text-decoration:underline !important;
+        font-weight:900 !important;
+        color:var(--primary) !important;
+      }
+      .print-numeros tbody td.pn-vlr{
+        color:var(--primary) !important;
+        font-weight:800 !important;
+        font-size:13px !important;
+        background:#fdf0f5 !important;
+      }
+      .print-numeros tbody td.pn-tot{
+        color:#00875a !important;
+        font-weight:800 !important;
+        font-size:13px !important;
+        background:#f0fdf4 !important;
+      }
+
+      /* Total */
+      #total{display:none !important}
+      .pv-total{display:block !important;font-size:15px !important;font-weight:800 !important;color:#00875a !important;text-align:right !important}
+      .total-box{background:#fff0f5 !important;border:1.5px solid var(--primary) !important;padding:5px 8px !important;border-radius:3px !important;margin-bottom:0 !important}
+      .total-label{font-size:13px !important}
+      .total-sign{display:none !important}
+      .sep{margin:3px 0 5px !important}
+    }
+
+    /* ══════════════════════════════════════════════
+       MÓDULO OTA — Actualización automática
+       ══════════════════════════════════════════════ */
+    .ota-bar{
+      display:none;position:fixed;bottom:0;left:0;right:0;z-index:99999;
+      background:linear-gradient(135deg,#1a237e,#3949ab);
+      color:white;padding:10px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      box-shadow:0 -4px 20px rgba(0,0,0,.35);
+      animation:slideUpBar .4s cubic-bezier(.34,1.56,.64,1);
+      font-family:'DM Sans',sans-serif;
+    }
+    .ota-bar.hidden{display:none !important}
+    @keyframes slideUpBar{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+    .ota-bar-text{flex:1}
+    .ota-bar-title{font-weight:700;font-size:13px;line-height:1.2}
+    .ota-bar-sub{font-size:10px;opacity:.75;margin-top:1px}
+    .ota-bar-btns{display:flex;gap:6px;flex-shrink:0}
+    .ota-btn-update{background:#4caf50;color:white;border:none;border-radius:20px;
+      padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+      font-family:'DM Sans',sans-serif;white-space:nowrap;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);transition:all .15s}
+    .ota-btn-update:active{opacity:.8;transform:scale(.95)}
+    .ota-btn-skip{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);
+      border-radius:20px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;
+      font-family:'DM Sans',sans-serif;transition:all .15s}
+    .ota-btn-skip:active{opacity:.8}
+
+    .ota-progress-overlay{
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);
+      z-index:100000;flex-direction:column;align-items:center;justify-content:center;
+      gap:16px;font-family:'DM Sans',sans-serif;
+    }
+    .ota-progress-overlay.show{display:flex}
+    .ota-progress-box{
+      background:white;border-radius:18px;padding:28px 28px 22px;
+      width:calc(100% - 40px);max-width:340px;text-align:center;
+    }
+    .ota-progress-icon{font-size:36px;margin-bottom:8px}
+    .ota-progress-title{font-weight:800;font-size:16px;color:#1a237e;margin-bottom:4px}
+    .ota-progress-sub{font-size:12px;color:#666;margin-bottom:16px;line-height:1.5}
+    .ota-progress-bar-wrap{background:#e8eaf6;border-radius:99px;height:8px;overflow:hidden;margin-bottom:8px}
+    .ota-progress-bar{height:100%;background:linear-gradient(90deg,#3949ab,#64b5f6);
+      border-radius:99px;width:0%;transition:width .3s ease;animation:shimmer 1.5s infinite linear}
+    @keyframes shimmer{0%{filter:brightness(1)}50%{filter:brightness(1.3)}100%{filter:brightness(1)}}
+    .ota-progress-pct{font-size:11px;color:#888;font-weight:600}
+
+    .modal-ota{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
+      z-index:100001;backdrop-filter:blur(5px);justify-content:center;align-items:center;
+      font-family:'DM Sans',sans-serif;}
+    .modal-ota.open{display:flex}
+    .modal-ota-box{background:white;border-radius:20px;width:calc(100% - 32px);max-width:360px;overflow:hidden;
+      animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+    .modal-ota-header{background:linear-gradient(135deg,#1a237e,#3949ab);padding:18px 18px 14px;text-align:center}
+    .modal-ota-header h2{color:white;font-size:18px;font-weight:800;letter-spacing:.5px}
+    .modal-ota-header p{color:rgba(255,255,255,.75);font-size:11px;margin-top:3px}
+    .modal-ota-body{padding:16px}
+    .ota-version-row{display:flex;justify-content:space-between;align-items:center;
+      background:#f5f5f5;border-radius:10px;padding:10px 14px;margin-bottom:10px}
+    .ota-version-label{font-size:11px;color:#888;font-weight:600}
+    .ota-version-val{font-size:13px;font-weight:800;color:#1a237e}
+    .ota-version-val.new{color:#2e7d32}
+    .ota-url-label{font-size:10px;font-weight:700;color:#555;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase}
+    .ota-url-input{width:100%;border:1.5px solid #c7d2fe;border-radius:9px;padding:8px 10px;
+      font-size:12px;font-family:'DM Sans',sans-serif;color:#333;margin-bottom:10px;
+      background:#f8f9ff;}
+    .ota-url-input:focus{outline:none;border-color:#3949ab}
+    .ota-check-btn{width:100%;background:linear-gradient(135deg,#1a237e,#3949ab);color:white;border:none;
+      border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;
+      font-family:'DM Sans',sans-serif;margin-bottom:8px;transition:opacity .15s}
+    .ota-check-btn:active{opacity:.85}
+    .ota-auto-row{display:flex;align-items:center;justify-content:space-between;
+      background:#f5f5f5;border-radius:10px;padding:9px 12px;margin-bottom:8px}
+    .ota-auto-label{font-size:12px;font-weight:600;color:#333}
+    .ota-toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+    .ota-toggle input{opacity:0;width:0;height:0}
+    .ota-toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:99px;cursor:pointer;transition:.3s}
+    .ota-toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;
+      background:white;border-radius:50%;transition:.3s}
+    .ota-toggle input:checked+.ota-toggle-slider{background:#3949ab}
+    .ota-toggle input:checked+.ota-toggle-slider::before{transform:translateX(18px)}
+    .ota-close-btn{width:100%;background:#f0f0f0;color:#555;border:none;border-radius:10px;
+      padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .ota-status{font-size:11px;text-align:center;padding:5px 0;min-height:20px;color:#555;font-weight:600}
+    .ota-status.ok{color:#2e7d32}.ota-status.err{color:#c62828}
+  </style>
+</head>
+<body>
+<div class="ticket" id="ticketEl">
+  <div class="header">
+    <div class="header-left">
+      <h1>RECIBO</h1>
+      <p>Chances &amp; Loterías</p>
+    </div>
+    <div class="numero-recibo">
+      <div class="label">N° Recibo</div>
+      <div class="num" id="numeroRecibo">000001</div>
+    </div>
+  </div>
+
+  <div class="ticket-body">
+    <div class="info-grid">
+      <div class="info-field">
+        <label>Código</label>
+        <input id="codigo" placeholder="90011" value="90011" inputmode="numeric">
+        <span class="pv" id="pv-codigo"></span>
+      </div>
+      <div class="info-field">
+        <label>Día</label>
+        <input id="dia" placeholder="DD" maxlength="2" inputmode="numeric">
+        <span class="pv" id="pv-dia"></span>
+      </div>
+      <div class="info-field">
+        <label>Mes</label>
+        <input id="mes" placeholder="MM" maxlength="2" inputmode="numeric">
+        <span class="pv" id="pv-mes"></span>
+      </div>
+      <div class="info-field">
+        <label>Año</label>
+        <input id="anio" placeholder="AA" maxlength="2" inputmode="numeric">
+        <span class="pv" id="pv-anio"></span>
+      </div>
+    </div>
+
+    <div class="sep"><div class="sep-line"></div><div class="sep-dot"></div><div class="sep-line"></div></div>
+
+    <div class="section-title-row">
+      <span class="section-title">Loterías</span>
+      <div class="lot-btns">
+        <button class="btn-rest-lot" id="btnRestaurar" onclick="restaurarLoterias()" style="display:none">Restaurar</button>
+        <button class="btn-add-lot" onclick="toggleAddLotForm()">＋ Lotería</button>
+        <button class="btn-edit-lot" id="btnEditLot" onclick="toggleEditLoterias()">✏️ Editar</button>
+      </div>
+    </div>
+
+    <div class="add-lot-form" id="addLotForm">
+      <input type="text" id="nuevaLotInput" placeholder="Ej: Nariño, Risaralda…" maxlength="12">
+      <button class="btn-confirm-lot" onclick="confirmarNuevaLoteria()">✓</button>
+      <button class="btn-cancel-lot" onclick="cancelarAddLot()">✕</button>
+    </div>
+
+    <table class="tabla-loterias" id="tablaLoterias">
+      <tr><td>Cund</td><td>Meta</td><td>Boyacá</td><td>Paisa 2</td><td>Tolima</td></tr>
+      <tr><td>Bogotá</td><td>Cauca</td><td>Play 2</td><td>Cruz R</td><td>Q.dio</td></tr>
+      <tr><td>Paisa 3</td><td>Cash 2</td><td>Huila</td><td>Med.</td><td>Ddo 3</td></tr>
+      <tr><td>Chont 2</td><td>Valle</td><td>Santa</td><td>Cafe 2</td><td>Pijao 2</td></tr>
+      <tr><td>Maniz</td><td>Sara</td><td>Extra</td><td>ANT. 2</td><td>Risa</td></tr>
+    </table>
+
+    <div class="sep"><div class="sep-line"></div><div class="sep-dot"></div><div class="sep-line"></div></div>
+
+    <!-- NÚMEROS: N1 N2 N3 N4 N5 | VLR/NRO | TOTAL -->
+    <div class="section-title" style="margin-bottom:5px">Números Jugados</div>
+    <table class="numeros" id="tablaNumeros">
+      <thead>
+      <tr>
+        <td>N1</td><td>N2</td><td>N3</td><td>N4</td><td>N5</td>
+        <td class="th-vf">VLR</td>
+        <td class="th-tf">TOTAL</td>
+      </tr>
+      </thead>
+      <tbody id="filasNumeros"></tbody>
+    </table>
+    <button class="btn-add-row" onclick="agregarFila()">＋ Agregar fila</button>
+
+    <!-- Tabla exclusiva para impresion — generada por JS en sincronizar() -->
+    <table class="print-numeros" id="printNumeros">
+      <thead>
+      <tr>
+        <td class="th-nums">Números Jugados</td>
+        <td class="th-vlr">Valor</td>
+        <td class="th-tot">Total</td>
+      </tr>
+      </thead>
+      <tbody id="printNumerosBody"></tbody>
+    </table>
+
+    <div class="total-box">
+      <div class="total-label">TOTAL</div>
+      <div class="total-right">
+        <span class="total-sign">$</span>
+        <input id="total" type="number" inputmode="decimal" placeholder="0">
+        <span class="pv pv-total" id="pv-total"></span>
+      </div>
+    </div>
+
+    <div class="botones">
+      <button class="btn btn-guardar-imprimir" onclick="guardarImprimirYWpp()">
+        <span class="btn-icon">🖨️</span> Guardar e Imprimir
+      </button>
+      <button class="btn btn-whatsapp" onclick="enviarWhatsApp()">
+        <span class="btn-icon">📲</span> Texto WPP
+      </button>
+      <button class="btn btn-foto" onclick="compartirFoto()">
+        <span class="btn-icon">📸</span> Foto WPP
+      </button>
+      <button class="btn btn-copiar" onclick="copiarTexto()">
+        <span class="btn-icon">📋</span> Copiar
+      </button>
+      <button class="btn btn-historial" onclick="abrirHistorial()">
+        <span class="btn-icon">📂</span> Historial
+      </button>
+      <button class="btn btn-temas" onclick="abrirTemas()">
+        <span class="btn-icon">🎨</span> Colores
+      </button>
+      <button class="btn btn-ota" onclick="abrirOTA()" style="background:linear-gradient(135deg,#1a237e,#3949ab);color:white">
+        <span class="btn-icon">⬆️</span> Actualizaciones
+      </button>
+      <button class="btn btn-limpiar" onclick="limpiarTodo()">
+        <span class="btn-icon">🗑</span> Limpiar Todo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALES -->
+<div class="modal-overlay" id="modalBluetooth" onclick="cerrarSiOverlay(event,'modalBluetooth')">
+  <div class="modal">
+    <div class="modal-header bt-header-azul">
+      <h2>🖨️ Impresora BT</h2>
+      <button class="modal-close" onclick="cerrarModal('modalBluetooth')">✕</button>
+    </div>
+    <div class="modal-body" id="btBody">
+      <div class="bt-loading"><div class="bt-spinner"></div><p>Buscando impresoras…</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalHistorial" onclick="cerrarSiOverlay(event,'modalHistorial')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📂 Historial</h2>
+      <button class="modal-close" onclick="cerrarModal('modalHistorial')">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="empty-state"><div class="es-icon">📭</div>No hay recibos guardados.</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalTemas" onclick="cerrarSiOverlay(event,'modalTemas')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🎨 Colores del Sistema</h2>
+      <button class="modal-close" onclick="cerrarModal('modalTemas')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:10px;color:#888;margin-bottom:8px;text-align:center">Toca un tema o elige tu color</p>
+      <div class="temas-grid" id="temasGrid"></div>
+      <div class="custom-color-row">
+        <label>🖌️ Personalizado</label>
+        <input type="color" id="colorPicker" value="#9c2e5a">
+        <button class="btn-aplicar-color" onclick="aplicarColorPersonalizado()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="fotoModal" onclick="cerrarSiOverlay(event,'fotoModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📸 Foto del Recibo</h2>
+      <button class="modal-close" onclick="cerrarModal('fotoModal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px">
+      <canvas id="fotoCanvas"></canvas>
+      <div class="foto-btns">
+        <button class="btn btn-whatsapp" onclick="descargarFoto()"><span class="btn-icon">⬇️</span> Guardar</button>
+        <button class="btn btn-foto" onclick="compartirNativo()"><span class="btn-icon">📤</span> Compartir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalConfirmWpp" onclick="cerrarSiOverlay(event,'modalConfirmWpp')">
+  <div class="modal" style="border-radius:22px">
+    <div class="modal-header" style="background:linear-gradient(135deg,#00a651,#25D366)">
+      <h2>📲 Enviar por WhatsApp</h2>
+      <button class="modal-close" onclick="cerrarModal('modalConfirmWpp')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 14px">
+      <canvas id="canvasPreviewWpp" style="max-width:100%;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.14)"></canvas>
+      <p style="font-size:12px;color:#555;text-align:center;line-height:1.5">¿Deseas enviar la foto del recibo<br>por <strong>WhatsApp</strong>?</p>
+      <div style="display:flex;gap:8px;width:100%">
+        <button class="btn" style="flex:1;background:#e5e7eb;color:#374151;font-size:12px;padding:11px" onclick="saltarWppEImprimir()"><span class="btn-icon">✕</span> No</button>
+        <button class="btn btn-whatsapp" style="flex:1;font-size:12px;padding:11px" onclick="confirmarEnvioWpp()"><span class="btn-icon">📲</span> Sí, enviar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════ MÓDULO OTA ══════ -->
+<!-- Barra de nueva versión disponible -->
+<div class="ota-bar hidden" id="otaBar">
+  <div class="ota-bar-text">
+    <div class="ota-bar-title">🚀 Nueva versión disponible</div>
+    <div class="ota-bar-sub" id="otaBarSub">v1.0.0 → vX.X.X</div>
+  </div>
+  <div class="ota-bar-btns">
+    <button class="ota-btn-skip" onclick="otaSkip()">Luego</button>
+    <button class="ota-btn-update" onclick="otaInstalar()">Actualizar</button>
+  </div>
+</div>
+
+<!-- Overlay de progreso de descarga -->
+<div class="ota-progress-overlay" id="otaProgressOverlay">
+  <div class="ota-progress-box">
+    <div class="ota-progress-icon">⬇️</div>
+    <div class="ota-progress-title">Descargando actualización</div>
+    <div class="ota-progress-sub" id="otaProgressSub">Conectando con el servidor…</div>
+    <div class="ota-progress-bar-wrap"><div class="ota-progress-bar" id="otaProgressBar"></div></div>
+    <div class="ota-progress-pct" id="otaProgressPct">0%</div>
+  </div>
+</div>
+
+<!-- Modal principal OTA -->
+<div class="modal-ota" id="modalOTA">
+  <div class="modal-ota-box">
+    <div class="modal-ota-header">
+      <h2>⬆️ Actualizaciones</h2>
+      <p>Mantén tu recibo siempre al día</p>
+    </div>
+    <div class="modal-ota-body">
+      <div class="ota-version-row">
+        <div><div class="ota-version-label">VERSIÓN ACTUAL</div><div class="ota-version-val" id="otaVerActual">—</div></div>
+        <div style="text-align:right"><div class="ota-version-label">DISPONIBLE</div><div class="ota-version-val new" id="otaVerNueva">—</div></div>
+      </div>
+      <div class="ota-url-label">URL del servidor de actualizaciones</div>
+      <input class="ota-url-input" id="otaUrlInput" type="url" placeholder="https://tuservidor.com/version.json" inputmode="url">
+      <button class="ota-check-btn" onclick="otaCheck()">🔍 Buscar actualización</button>
+      <div class="ota-auto-row">
+        <span class="ota-auto-label">Verificar al abrir la app</span>
+        <label class="ota-toggle"><input type="checkbox" id="otaAutoCheck" onchange="otaGuardarConfig()"><span class="ota-toggle-slider"></span></label>
+      </div>
+      <div class="ota-status" id="otaStatus"></div>
+      <button class="ota-close-btn" onclick="cerrarModalOTA()">Cerrar</button>
+    </div>
+  </div>
+</div>
+<!-- ══════ FIN MÓDULO OTA ══════ -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const isAndroid = typeof AndroidBridge !== 'undefined';
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+    /* FECHA */
+    const hoy = new Date();
+    document.getElementById('dia').value  = String(hoy.getDate()).padStart(2,'0');
+    document.getElementById('mes').value  = String(hoy.getMonth()+1).padStart(2,'0');
+    document.getElementById('anio').value = String(hoy.getFullYear()).slice(2);
+
+    /* NÚMERO RECIBO */
+    let numero = parseInt(localStorage.getItem('numeroRecibo') || '1');
+    const actualizarNumero = () => document.getElementById('numeroRecibo').innerText = String(numero).padStart(6,'0');
+    const incrementarNumero = () => {
+      const el = document.getElementById('numeroRecibo');
+      el.classList.remove('flip-in'); el.classList.add('flip-out');
+      setTimeout(() => {
+        numero++; localStorage.setItem('numeroRecibo', numero);
+        el.innerText = String(numero).padStart(6,'0');
+        el.classList.remove('flip-out'); el.classList.add('flip-in');
+      }, 180);
+    };
+    actualizarNumero();
+
+    const crearFila = () => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
+        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
+        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
+        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
+        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
+        <td class="col-vf">
+          <span class="badge-nums"></span>
+          <input type="number" inputmode="decimal" min="0" placeholder="—">
+          <span class="pv"></span>
+        </td>
+        <td class="col-tf">
+          <input class="valor" type="number" readonly tabindex="-1" placeholder="0">
+          <span class="pv valor"></span>
+        </td>`;
+
+      const tapTimes = new WeakMap();
+      Array.from(tr.querySelectorAll('td')).forEach((td, idx) => {
+        if (idx >= 5) return;
+        td.addEventListener('click', e => {
+          const now = Date.now(), last = tapTimes.get(td) || 0;
+          if (now - last < 380) { td.classList.toggle('circulado'); tapTimes.delete(td); }
+          else tapTimes.set(td, now);
+        });
+      });
+
+      const inputs = tr.querySelectorAll('input');
+      [inputs[0],inputs[1],inputs[2],inputs[3],inputs[4],inputs[5]].forEach(inp => {
+        inp.addEventListener('input', () => { recalcularFila(tr); recalcularTotal(); sincronizar(); });
+      });
+
+      return tr;
+    };
+
+    const recalcularFila = tr => {
+      const inputs  = tr.querySelectorAll('input');
+      const numInputs = [inputs[0],inputs[1],inputs[2],inputs[3],inputs[4]];
+      const vfInput = inputs[5];
+      const tfInput = inputs[6];
+      const vlr     = parseFloat(vfInput.value);
+      const precio  = (!isNaN(vlr) && vlr > 0) ? vlr : 0;
+      const llenos  = numInputs.filter(i => i.value.trim() !== '').length;
+
+      tr.querySelector('.badge-nums').textContent = llenos > 0 ? '×'+llenos : '';
+      tfInput.value = (precio > 0 && llenos > 0) ? precio * llenos : '';
+    };
+
+    const recalcularTodasLasFilas = () => {
+      document.querySelectorAll('#filasNumeros tr').forEach(recalcularFila);
+      recalcularTotal();
+    };
+
+    const recalcularTotal = () => {
+      let s = 0;
+      document.querySelectorAll('#tablaNumeros .valor').forEach(i => { const v=parseFloat(i.value); if(!isNaN(v)) s+=v; });
+      document.getElementById('total').value = s > 0 ? s : '';
+    };
+
+    const tbody = document.getElementById('filasNumeros');
+    for (let i = 0; i < 10; i++) tbody.appendChild(crearFila());
+    window.agregarFila = () => { tbody.appendChild(crearFila()); showToast('➕ Fila agregada'); };
+
+    /* ── LOTERÍAS ── */
+    let modoEditLot = false;
+    let loteriasOcultas = JSON.parse(localStorage.getItem('loteriasOcultas') || '[]');
+    let loteriasCustom  = JSON.parse(localStorage.getItem('loteriasCustom')  || '[]');
+
+    const aplicarOcultas = () => {
+      document.querySelectorAll('#tablaLoterias td').forEach(td => {
+        td.classList.toggle('oculta', loteriasOcultas.includes(td.innerText.trim()));
+      });
+      document.getElementById('btnRestaurar').style.display = loteriasOcultas.length ? 'inline' : 'none';
+    };
+
+    const renderCustomLoterias = () => {
+      document.querySelectorAll('#tablaLoterias tr.custom-row').forEach(r => r.remove());
+      if (!loteriasCustom.length) return;
+      const tabla = document.getElementById('tablaLoterias');
+      for (let i = 0; i < loteriasCustom.length; i += 5) {
+        const tr = document.createElement('tr'); tr.className = 'custom-row';
+        loteriasCustom.slice(i, i+5).forEach(nom => {
+          const td = document.createElement('td'); td.textContent = nom; td.classList.add('custom-lot');
+          td.addEventListener('click', () => {
+            if (modoEditLot) {
+              loteriasCustom = loteriasCustom.filter(n => n !== nom);
+              localStorage.setItem('loteriasCustom', JSON.stringify(loteriasCustom));
+              renderCustomLoterias(); aplicarOcultas(); showToast('🗑 Lotería eliminada');
+            } else { td.classList.toggle('activa'); }
+          });
+          tr.appendChild(td);
+        });
+        while (tr.children.length < 5) { const e=document.createElement('td'); e.style.cssText='border:none;background:transparent'; tr.appendChild(e); }
+        tabla.appendChild(tr);
+      }
+      aplicarOcultas();
+    };
+
+    aplicarOcultas(); renderCustomLoterias();
+
+    document.querySelectorAll('#tablaLoterias td').forEach(td => {
+      td.addEventListener('click', () => {
+        if (modoEditLot) {
+          const nombre = td.innerText.trim();
+          if (!loteriasOcultas.includes(nombre)) {
+            loteriasOcultas.push(nombre); localStorage.setItem('loteriasOcultas', JSON.stringify(loteriasOcultas));
+            td.classList.add('oculta'); document.getElementById('btnRestaurar').style.display='inline';
+          }
+        } else { td.classList.toggle('activa'); }
+      });
+    });
+
+    window.toggleEditLoterias = () => {
+      modoEditLot = !modoEditLot;
+      const btn = document.getElementById('btnEditLot');
+      btn.classList.toggle('activo', modoEditLot);
+      btn.textContent = modoEditLot ? '✓ Listo' : '✏️ Editar';
+      document.querySelectorAll('#tablaLoterias td:not(.oculta)').forEach(td => td.classList.toggle('edit-mode', modoEditLot));
+      if (modoEditLot) showToast('Toca una lotería para quitarla');
+    };
+    window.restaurarLoterias = () => {
+      loteriasOcultas = []; localStorage.removeItem('loteriasOcultas');
+      document.querySelectorAll('#tablaLoterias td').forEach(td => td.classList.remove('oculta'));
+      document.getElementById('btnRestaurar').style.display='none'; showToast('✅ Loterías restauradas');
+    };
+    window.toggleAddLotForm = () => {
+      const form = document.getElementById('addLotForm');
+      if (form.classList.toggle('open')) document.getElementById('nuevaLotInput').focus();
+    };
+    window.cancelarAddLot = () => { document.getElementById('addLotForm').classList.remove('open'); document.getElementById('nuevaLotInput').value=''; };
+    window.confirmarNuevaLoteria = () => {
+      const inp = document.getElementById('nuevaLotInput');
+      const nombre = inp.value.trim();
+      if (!nombre) { showToast('⚠️ Escribe un nombre'); return; }
+      if (loteriasCustom.includes(nombre)) { showToast('⚠️ Ya existe'); return; }
+      loteriasCustom.push(nombre); localStorage.setItem('loteriasCustom', JSON.stringify(loteriasCustom));
+      renderCustomLoterias(); inp.value=''; document.getElementById('addLotForm').classList.remove('open');
+      showToast('✅ "'+nombre+'" agregada');
+    };
+    document.getElementById('nuevaLotInput').addEventListener('keydown', e => { if(e.key==='Enter') confirmarNuevaLoteria(); });
+
+    /* SINCRONIZAR — actualiza .pv y genera tabla de impresión */
+    const fmt = n => n ? '$'+Number(n).toLocaleString('es-CO') : '';
+    const sincronizar = window.sincronizarParaImpresion = () => {
+      /* Info fields */
+      ['codigo','dia','mes','anio'].forEach(id => { const el=document.getElementById(id); if(el) document.getElementById('pv-'+id).textContent=el.value; });
+      const tv=document.getElementById('total').value;
+      document.getElementById('pv-total').textContent = tv ? '$'+Number(tv).toLocaleString('es-CO') : '$0';
+
+      /* Generar tabla de impresión limpia */
+      const pb = document.getElementById('printNumerosBody');
+      if (!pb) return;
+      pb.innerHTML = '';
+      document.querySelectorAll('#filasNumeros tr').forEach(fila => {
+        const ins = fila.querySelectorAll('input');
+        const tds = fila.querySelectorAll('td');
+        const nums = [ins[0],ins[1],ins[2],ins[3],ins[4]];
+        const vlr  = ins[5] ? ins[5].value : '';
+        const tot  = ins[6] ? ins[6].value : '';
+        /* Solo agregar fila si tiene al menos un número */
+        if (!nums.some(i => i && i.value.trim())) return;
+        const numsParts = nums.map((inp, i) => {
+          if (!inp || !inp.value.trim()) return '';
+          const circulado = tds[i] && tds[i].classList.contains('circulado');
+          return circulado
+            ? '<span class="circ">(' + inp.value + ')</span>'
+            : inp.value;
+        }).filter(Boolean).join(' - ');
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td class="pn-nums">' + numsParts + '</td>' +
+          '<td class="pn-vlr">' + (vlr ? fmt(vlr) : '—') + '</td>' +
+          '<td class="pn-tot">' + (tot ? fmt(tot) : '—') + '</td>';
+        pb.appendChild(tr);
+      });
+    };
+
+    /* TEMAS */
+    const TEMAS = [
+      {name:'Rosa',    primary:'#9c2e5a',light:'#c0406e',bg:'#fff0f5',border:'#dbb9c8',dark:'#1a0a12',shadow:'rgba(156,46,90,0.18)'},
+      {name:'Azul',    primary:'#1d4ed8',light:'#3b82f6',bg:'#eff6ff',border:'#bfdbfe',dark:'#0a1533',shadow:'rgba(29,78,216,0.18)'},
+      {name:'Verde',   primary:'#15803d',light:'#22c55e',bg:'#f0fdf4',border:'#bbf7d0',dark:'#052e16',shadow:'rgba(21,128,61,0.18)'},
+      {name:'Morado',  primary:'#7c3aed',light:'#a855f7',bg:'#faf5ff',border:'#e9d5ff',dark:'#1a0533',shadow:'rgba(124,58,237,0.18)'},
+      {name:'Naranja', primary:'#c2410c',light:'#f97316',bg:'#fff7ed',border:'#fed7aa',dark:'#431407',shadow:'rgba(194,65,12,0.18)'},
+      {name:'Teal',    primary:'#0f766e',light:'#14b8a6',bg:'#f0fdfa',border:'#99f6e4',dark:'#042f2e',shadow:'rgba(15,118,110,0.18)'},
+      {name:'Rojo',    primary:'#dc2626',light:'#ef4444',bg:'#fef2f2',border:'#fecaca',dark:'#450a0a',shadow:'rgba(220,38,38,0.18)'},
+      {name:'Índigo',  primary:'#4338ca',light:'#6366f1',bg:'#eef2ff',border:'#c7d2fe',dark:'#1e1b4b',shadow:'rgba(67,56,202,0.18)'},
+      {name:'Ámbar',   primary:'#b45309',light:'#f59e0b',bg:'#fffbeb',border:'#fde68a',dark:'#3b1602',shadow:'rgba(180,83,9,0.18)'},
+    ];
+    let temaActivo = JSON.parse(localStorage.getItem('temaChances') || 'null') || TEMAS[0];
+    const mixColor = (hex,amt) => { const r=Math.min(255,Math.max(0,parseInt(hex.slice(1,3),16)+amt)),g=Math.min(255,Math.max(0,parseInt(hex.slice(3,5),16)+amt)),b=Math.min(255,Math.max(0,parseInt(hex.slice(5,7),16)+amt)); return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`; };
+    const aplicarTema = t => {
+      temaActivo=t; const r=document.documentElement.style;
+      r.setProperty('--primary',t.primary); r.setProperty('--primary-light',t.light);
+      r.setProperty('--primary-bg',t.bg); r.setProperty('--primary-border',t.border);
+      r.setProperty('--primary-dark',t.dark); r.setProperty('--primary-shadow',t.shadow||'rgba(0,0,0,0.15)');
+      document.body.style.background=`linear-gradient(135deg,${t.dark} 0%,${mixColor(t.dark,20)} 50%,${t.dark} 100%)`;
+      localStorage.setItem('temaChances',JSON.stringify(t));
+      document.querySelectorAll('.tema-card').forEach(c=>c.classList.toggle('activo',c.dataset.primary===t.primary));
+    };
+    window.abrirTemas = () => {
+      document.getElementById('temasGrid').innerHTML=TEMAS.map(t=>`<div class="tema-card ${t.primary===temaActivo.primary?'activo':''}" data-primary="${t.primary}" onclick="seleccionarTema('${t.primary}')" style="background:${t.bg}"><div class="tema-swatch" style="background:${t.primary}"></div><div class="tema-name" style="color:${t.primary}">${t.name}</div></div>`).join('');
+      document.getElementById('colorPicker').value=temaActivo.primary;
+      document.getElementById('modalTemas').classList.add('open');
+    };
+    window.seleccionarTema = p => { const t=TEMAS.find(t=>t.primary===p); if(t){aplicarTema(t);showToast('🎨 '+t.name+' aplicado');} };
+    window.aplicarColorPersonalizado = () => { const hex=document.getElementById('colorPicker').value,r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); aplicarTema({name:'Custom',primary:hex,light:mixColor(hex,35),bg:`rgb(${Math.min(255,r+215)},${Math.min(255,g+200)},${Math.min(255,b+208)})`,border:`rgb(${Math.min(255,r+110)},${Math.min(255,g+95)},${Math.min(255,b+105)})`,dark:`rgb(${Math.max(0,Math.round(r*0.15))},${Math.max(0,Math.round(g*0.10))},${Math.max(0,Math.round(b*0.15))})`,shadow:`rgba(${r},${g},${b},0.18)`}); showToast('🎨 Color personalizado aplicado'); };
+    aplicarTema(temaActivo);
+
+    /* HISTORIAL */
+    const guardarHistorial = () => {
+      const total=document.getElementById('total').value||'0';
+      const loterias=Array.from(document.querySelectorAll('#tablaLoterias td.activa')).map(td=>td.innerText);
+      const fecha=`${document.getElementById('dia').value}/${document.getElementById('mes').value}/${document.getElementById('anio').value}`;
+      let h=JSON.parse(localStorage.getItem('historialChances')||'[]');
+      h.unshift({recibo:String(numero).padStart(6,'0'),fecha,loterias,total});
+      if(h.length>200) h=h.slice(0,200);
+      localStorage.setItem('historialChances',JSON.stringify(h));
+    };
+
+    /* ── CAPTURAR TICKET ──
+       Antes de capturar con html2canvas:
+       1. Oculta botones y tabla original de inputs
+       2. Muestra la tabla de impresión limpia (print-numeros)
+       3. Captura
+       4. Restaura todo
+    */
+    const capturarTicket = () => new Promise((resolve, reject) => {
+      sincronizar(); // asegura que printNumerosBody esté actualizado
+
+      const botones      = document.querySelector('.botones');
+      const btnAddRow    = document.querySelector('.btn-add-row');
+      const tablaOrig    = document.getElementById('tablaNumeros');
+      const printTabla   = document.getElementById('printNumeros');
+      const sectionTitle = document.querySelector('.section-title');
+      const lotBtns      = document.querySelector('.lot-btns');
+
+      // Ocultar elementos de pantalla
+      botones.style.display      = 'none';
+      if (btnAddRow)    btnAddRow.style.display    = 'none';
+      if (sectionTitle) sectionTitle.style.display = 'none';
+      if (lotBtns)      lotBtns.style.display      = 'none';
+
+      // Intercambiar tablas
+      tablaOrig.style.display  = 'none';
+      printTabla.style.display = 'table';
+
+      // Aplicar estilos de la tabla print directamente (html2canvas ignora @media print)
+      const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#9c2e5a';
+      printTabla.style.cssText = `
+        display:table;width:100%;border-collapse:collapse;
+        margin-bottom:6px;border:1.5px solid #bbb;font-family:'DM Sans',Arial,sans-serif;
+      `;
+      const thead = printTabla.querySelector('thead tr');
+      if (thead) {
+        thead.style.background = primary;
+        Array.from(thead.querySelectorAll('td')).forEach((td,i) => {
+          td.style.cssText = 'color:white;font-size:11px;font-weight:700;text-transform:uppercase;padding:5px 4px;text-align:center;border:none;';
+          if (i===0) { td.style.background='rgba(0,0,0,0.15)'; td.style.width='56%'; }
+          if (i===1) { td.style.background='rgba(0,0,0,0.28)'; td.style.width='22%'; }
+          if (i===2) { td.style.background='rgba(0,135,90,0.55)'; td.style.width='22%'; }
+        });
+      }
+      Array.from(printTabla.querySelectorAll('tbody tr')).forEach((tr, ri) => {
+        tr.style.borderTop = '1px solid #ddd';
+        if (ri%2===1) tr.style.background = '#fdf5f8';
+        Array.from(tr.querySelectorAll('td')).forEach((td,ci) => {
+          td.style.cssText = 'padding:6px 5px;text-align:center;vertical-align:middle;font-size:14px;font-weight:700;border-right:1px solid #e0e0e0;';
+          if (ci===0) { td.style.textAlign='left'; td.style.paddingLeft='7px'; td.style.color='#111'; td.style.fontSize='14px'; }
+          if (ci===1) { td.style.color=primary; td.style.fontWeight='800'; td.style.background='#fdf0f5'; td.style.borderRight='1px solid #e0e0e0'; }
+          if (ci===2) { td.style.color='#00875a'; td.style.fontWeight='800'; td.style.background='#f0fdf4'; td.style.borderRight='none'; }
+        });
+      });
+
+      // Estilizar info-fields: ocultar inputs, mostrar pvs
+      const infoInputs = document.querySelectorAll('.info-field input');
+      const infoPvs    = document.querySelectorAll('.info-field .pv');
+      infoInputs.forEach(el => el.style.display = 'none');
+      infoPvs.forEach(el => { el.style.display='block'; el.style.fontSize='12px'; el.style.fontWeight='700'; el.style.textAlign='center'; el.style.color='#222'; });
+
+      // Ocultar input total, mostrar pv-total
+      const totalInput = document.getElementById('total');
+      const totalPv    = document.getElementById('pv-total');
+      const totalSign  = document.querySelector('.total-sign');
+      if (totalInput) totalInput.style.display = 'none';
+      if (totalSign)  totalSign.style.display  = 'none';
+      if (totalPv)    { totalPv.style.display='block'; totalPv.style.fontSize='16px'; totalPv.style.fontWeight='800'; totalPv.style.color='#00875a'; }
+
+      setTimeout(() => {
+        html2canvas(document.getElementById('ticketEl'), {
+          scale:2.5, useCORS:true, backgroundColor:'#ffffff', logging:false
+        }).then(c => {
+          // Restaurar todo
+          botones.style.display      = '';
+          if (btnAddRow)    btnAddRow.style.display    = '';
+          if (sectionTitle) sectionTitle.style.display = '';
+          if (lotBtns)      lotBtns.style.display      = '';
+          tablaOrig.style.display  = '';
+          printTabla.style.display = 'none';
+          infoInputs.forEach(el => el.style.display = '');
+          infoPvs.forEach(el    => el.style.display = '');
+          if (totalInput) totalInput.style.display = '';
+          if (totalSign)  totalSign.style.display  = '';
+          if (totalPv)    totalPv.style.display    = '';
+          resolve(c);
+        }).catch(e => {
+          botones.style.display      = '';
+          if (btnAddRow)    btnAddRow.style.display    = '';
+          if (sectionTitle) sectionTitle.style.display = '';
+          if (lotBtns)      lotBtns.style.display      = '';
+          tablaOrig.style.display  = '';
+          printTabla.style.display = 'none';
+          infoInputs.forEach(el => el.style.display = '');
+          infoPvs.forEach(el    => el.style.display = '');
+          if (totalInput) totalInput.style.display = '';
+          if (totalSign)  totalSign.style.display  = '';
+          if (totalPv)    totalPv.style.display    = '';
+          reject(e);
+        });
+      }, 350);
+    });
+
+    const guardarEnGaleria = canvas => {
+      const b64 = canvas.toDataURL('image/png');
+      if (isAndroid) {
+        if (typeof AndroidBridge.guardarEnGaleria === 'function') {
+          AndroidBridge.guardarEnGaleria(b64);
+          showToast('🖼️ Guardado en galería');
+        } else if (typeof AndroidBridge.descargarImagen === 'function') {
+          AndroidBridge.descargarImagen(b64);
+          showToast('🖼️ Guardando en galería…');
+        }
+      } else {
+        const a = document.createElement('a');
+        a.download = `recibo-${document.getElementById('numeroRecibo').innerText}.png`;
+        a.href = b64; a.click();
+        showToast('⬇️ Descargando recibo…');
+      }
+    };
+
+    window.guardarImprimirYWpp = async () => {
+      sincronizar(); guardarHistorial(); incrementarNumero();
+      showToast('⏳ Preparando recibo…');
+      try {
+        const canvas = await capturarTicket();
+        window._capturedCanvas = canvas;
+        guardarEnGaleria(canvas);
+        const preview = document.getElementById('canvasPreviewWpp');
+        preview.width=canvas.width; preview.height=canvas.height;
+        preview.getContext('2d').drawImage(canvas, 0, 0);
+        document.getElementById('modalConfirmWpp').classList.add('open');
+      } catch(e) {
+        showToast('✅ Recibo guardado');
+        if (isAndroid) setTimeout(() => AndroidBridge.iniciarImpresion(), 300);
+      }
+    };
+
+    window.confirmarEnvioWpp = () => {
+      cerrarModal('modalConfirmWpp');
+      if (!window._capturedCanvas) { showToast('❌ Sin imagen'); return; }
+      const b64 = window._capturedCanvas.toDataURL('image/png');
+      if (isAndroid) {
+        setTimeout(() => AndroidBridge.iniciarImpresion(), 200);
+        AndroidBridge.compartirImagen(b64);
+      } else {
+        window._capturedCanvas.toBlob(async blob => {
+          const file = new File([blob],'recibo.png',{type:'image/png'});
+          try { if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})) await navigator.share({files:[file],title:'Recibo de Chances'}); else descargarFoto(); }
+          catch(e) { descargarFoto(); }
+        }, 'image/png');
+      }
+    };
+    window.saltarWppEImprimir = () => { cerrarModal('modalConfirmWpp'); if(isAndroid) setTimeout(()=>AndroidBridge.iniciarImpresion(),200); };
+
+    window.enviarWhatsApp = () => {
+      const txt = buildTextoRecibo(true);
+      if (isAndroid) AndroidBridge.abrirWhatsApp(txt);
+      else window.open('https://wa.me/?text='+encodeURIComponent(txt));
+    };
+
+    window.copiarTexto = () => {
+      navigator.clipboard.writeText(buildTextoRecibo(false))
+        .then(()=>showToast('📋 ¡Copiado!')).catch(()=>showToast('❌ Error al copiar'));
+    };
+
+    window.compartirFoto = async () => {
+      showToast('📸 Generando imagen…');
+      try {
+        const canvas = await capturarTicket();
+        window._capturedCanvas = canvas;
+        const el = document.getElementById('fotoCanvas');
+        el.width=canvas.width; el.height=canvas.height;
+        el.getContext('2d').drawImage(canvas,0,0);
+        document.getElementById('fotoModal').classList.add('open');
+      } catch(e) { showToast('❌ Error al capturar'); }
+    };
+
+    window.descargarFoto = () => { if(window._capturedCanvas) guardarEnGaleria(window._capturedCanvas); };
+
+    window.compartirNativo = () => {
+      if (!window._capturedCanvas) return;
+      const b64 = window._capturedCanvas.toDataURL('image/png');
+      if (isAndroid) { AndroidBridge.compartirImagen(b64); }
+      else {
+        window._capturedCanvas.toBlob(async blob => {
+          const file=new File([blob],'recibo.png',{type:'image/png'});
+          try { if(navigator.share&&navigator.canShare({files:[file]})) await navigator.share({files:[file],title:'Recibo de Chances'}); else descargarFoto(); }
+          catch(e) { descargarFoto(); }
+        },'image/png');
+      }
+    };
+
+    window.abrirHistorial = () => {
+      const h=JSON.parse(localStorage.getItem('historialChances')||'[]');
+      document.getElementById('modalBody').innerHTML = h.length
+        ? h.map(r=>`<div class="historial-item"><div class="hi-top"><span class="hi-recibo">#${r.recibo}</span><span class="hi-fecha">📅 ${r.fecha}</span></div><div class="hi-total">💰 $${r.total}</div><div class="hi-loterias">🎰 ${(r.loterias||[]).join(', ')||'Sin loterías'}</div></div>`).join('')
+        : '<div class="empty-state"><div class="es-icon">📭</div>No hay recibos guardados.</div>';
+      document.getElementById('modalHistorial').classList.add('open');
+    };
+
+    window.limpiarTodo = () => {
+      if (!confirm('¿Limpiar los datos del recibo actual?')) return;
+      document.querySelectorAll('.numeros input').forEach(i => i.value='');
+      document.getElementById('total').value='';
+      document.querySelectorAll('#tablaLoterias td').forEach(td=>td.classList.remove('activa'));
+      document.querySelectorAll('#tablaNumeros td').forEach(td=>td.classList.remove('circulado'));
+      document.querySelectorAll('.badge-nums').forEach(b=>b.textContent='');
+      showToast('🗑 Recibo limpiado');
+    };
+
+    window.cerrarModal = id => document.getElementById(id).classList.remove('open');
+    window.cerrarSiOverlay = (e,id) => { if(e.target===document.getElementById(id)) cerrarModal(id); };
+    window.showToast = msg => { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); };
+
+    document.querySelectorAll('input:not([type=color])').forEach(inp => inp.addEventListener('input', sincronizar));
+    sincronizar();
+  });
+
+  /* TEXTO RECIBO */
+  function buildTextoRecibo(markdown) {
+    const dia=document.getElementById('dia').value,mes=document.getElementById('mes').value,anio=document.getElementById('anio').value;
+    const cod=document.getElementById('codigo').value,rec=document.getElementById('numeroRecibo').innerText;
+    const lots=Array.from(document.querySelectorAll('#tablaLoterias td.activa')).map(td=>td.innerText).join(', ')||'Ninguna';
+    let lineas='';
+    document.querySelectorAll('#tablaNumeros tbody tr').forEach(fila => {
+      const ins=fila.querySelectorAll('input');
+      const nums=[ins[0].value,ins[1].value,ins[2].value,ins[3].value,ins[4].value];
+      const tf=ins[6]?ins[6].value:'';
+      const cells=fila.querySelectorAll('td');
+      const parts=nums.map((n,i)=>(cells[i]&&cells[i].classList.contains('circulado')?'⭕':'')+(n||'-'));
+      if(nums.some(n=>n)) lineas+=parts.join(' | ')+` -> $${tf||'0'}\n`;
+    });
+    const total=document.getElementById('total').value||'0';
+    if(markdown) return `🎟️ *RECIBO DE CHANCES #${rec}*\n📅 ${dia}/${mes}/${anio} | Cód: ${cod}\n\n🎰 *Loterías:* ${lots}\n\n📋 *Números:*\n${lineas||'Sin números'}\n💰 *TOTAL: $${Number(total).toLocaleString('es-CO')}*`;
+    return `RECIBO #${rec}\nFecha: ${dia}/${mes}/${anio} | Cód: ${cod}\nLoterías: ${lots}\n\nNúmeros:\n${lineas}TOTAL: $${total}`;
+  }
+
+
+  /* ══════════════════════════════════════════════════════
+     MÓDULO OTA — Actualización Over-The-Air
+     ══════════════════════════════════════════════════════
+
+     PROTOCOLO:
+     El servidor debe exponer un JSON en la URL configurada:
+     {
+       "version": "1.2.0",
+       "url": "https://tuservidor.com/recibo-chances-v1.2.0.html",
+       "notas": "Correcciones de impresión y nuevas loterías"
+     }
+
+     FLUJO:
+     1. Al abrir (si autoCheck activado): fetch JSON → compara versión
+     2. Si hay nueva: muestra barra de notificación
+     3. Usuario pulsa "Actualizar": descarga el HTML nuevo
+     4. En Android: AndroidBridge.reemplazarHTML(htmlContent)
+        En web: descarga el archivo .html
+     ══════════════════════════════════════════════════════ */
+
+  const OTA_VERSION_ACTUAL = document.querySelector('meta[name="ota-version"]')?.content || '1.0.0';
+
+  const otaCompararVersiones = (a, b) => {
+    const pa = a.split('.').map(Number);
+    const pb = b.split('.').map(Number);
+    for (let i = 0; i < 3; i++) {
+      if ((pa[i]||0) < (pb[i]||0)) return -1;
+      if ((pa[i]||0) > (pb[i]||0)) return 1;
+    }
+    return 0;
+  };
+
+  const otaCargarConfig = () => ({
+    url:       localStorage.getItem('otaUrl')       || '',
+    auto:      localStorage.getItem('otaAuto')      === 'true',
+    skipVer:   localStorage.getItem('otaSkipVer')   || '',
+  });
+
+  window.otaGuardarConfig = () => {
+    const url  = document.getElementById('otaUrlInput').value.trim();
+    const auto = document.getElementById('otaAutoCheck').checked;
+    localStorage.setItem('otaUrl',  url);
+    localStorage.setItem('otaAuto', auto);
+  };
+
+  const otaSetStatus = (msg, tipo='') => {
+    const el = document.getElementById('otaStatus');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'ota-status' + (tipo ? ' '+tipo : '');
+  };
+
+  window.abrirOTA = () => {
+    const cfg = otaCargarConfig();
+    document.getElementById('otaUrlInput').value      = cfg.url;
+    document.getElementById('otaAutoCheck').checked   = cfg.auto;
+    document.getElementById('otaVerActual').textContent = 'v' + OTA_VERSION_ACTUAL;
+    document.getElementById('otaVerNueva').textContent  = '—';
+    otaSetStatus('');
+    document.getElementById('modalOTA').classList.add('open');
+  };
+
+  window.cerrarModalOTA = () => {
+    otaGuardarConfig();
+    document.getElementById('modalOTA').classList.remove('open');
+  };
+
+  window.otaCheck = async () => {
+    const url = document.getElementById('otaUrlInput').value.trim();
+    if (!url) { otaSetStatus('⚠️ Ingresa la URL del servidor', 'err'); return; }
+    localStorage.setItem('otaUrl', url);
+    otaSetStatus('🔍 Buscando…');
+    try {
+      const res  = await fetch(url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (!data.version || !data.url) throw new Error('Respuesta inválida del servidor');
+
+      document.getElementById('otaVerNueva').textContent = 'v' + data.version;
+      window._otaData = data;
+
+      if (otaCompararVersiones(OTA_VERSION_ACTUAL, data.version) < 0) {
+        otaSetStatus('✅ ¡Nueva versión disponible! v' + data.version, 'ok');
+        // También muestra la barra flotante si el modal está cerrado
+        otaMostrarBarra(data);
+      } else {
+        otaSetStatus('✅ Ya tienes la versión más reciente', 'ok');
+      }
+    } catch(e) {
+      otaSetStatus('❌ Error: ' + e.message, 'err');
+    }
+  };
+
+  const otaMostrarBarra = (data) => {
+    const bar = document.getElementById('otaBar');
+    const sub = document.getElementById('otaBarSub');
+    if (!bar) return;
+    sub.textContent = 'v' + OTA_VERSION_ACTUAL + ' → v' + data.version + (data.notas ? ' · ' + data.notas : '');
+    bar.classList.remove('hidden');
+    window._otaData = data;
+  };
+
+  window.otaSkip = () => {
+    if (window._otaData) localStorage.setItem('otaSkipVer', window._otaData.version);
+    document.getElementById('otaBar').classList.add('hidden');
+  };
+
+  window.otaInstalar = async () => {
+    const data = window._otaData;
+    if (!data || !data.url) { showToast('❌ Sin datos de actualización'); return; }
+    document.getElementById('otaBar').classList.add('hidden');
+    document.getElementById('modalOTA').classList.remove('open');
+
+    const overlay = document.getElementById('otaProgressOverlay');
+    const bar     = document.getElementById('otaProgressBar');
+    const pct     = document.getElementById('otaProgressPct');
+    const sub     = document.getElementById('otaProgressSub');
+    overlay.classList.add('show');
+    bar.style.width = '0%';
+    pct.textContent = '0%';
+    sub.textContent = 'Descargando v' + data.version + '…';
+
+    try {
+      // Fetch con progreso usando ReadableStream
+      const res = await fetch(data.url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      const total  = parseInt(res.headers.get('content-length') || '0');
+      const reader = res.body.getReader();
+      let received = 0;
+      const chunks = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        received += value.length;
+        const p = total > 0 ? Math.round((received / total) * 100) : Math.min(received / 1024, 99);
+        bar.style.width = (total > 0 ? p : Math.min(p, 95)) + '%';
+        pct.textContent = (total > 0 ? p : '…') + (total > 0 ? '%' : ' KB');
+      }
+
+      bar.style.width = '100%';
+      pct.textContent = '100%';
+      sub.textContent = '✅ Descarga completa. Instalando…';
+
+      // Reconstruir el texto del HTML
+      const blob    = new Blob(chunks);
+      const htmlText = await blob.text();
+
+      // Guardar la versión nueva en localStorage para que al recargar ya tenga la nueva
+      localStorage.setItem('otaUrl',  data.url);
+
+      setTimeout(() => {
+        overlay.classList.remove('show');
+        if (isAndroid && typeof AndroidBridge.reemplazarHTML === 'function') {
+          // Android: el bridge reemplaza el archivo HTML interno y recarga la WebView
+          AndroidBridge.reemplazarHTML(htmlText);
+        } else {
+          // Web/fallback: descarga el archivo y pide al usuario que lo abra
+          const a   = document.createElement('a');
+          a.download = 'recibo-chances-v' + data.version + '.html';
+          a.href     = URL.createObjectURL(new Blob([htmlText], {type:'text/html'}));
+          a.click();
+          showToast('⬇️ Descargado. Abre el nuevo archivo.');
+        }
+      }, 800);
+
+    } catch(e) {
+      overlay.classList.remove('show');
+      showToast('❌ Error al descargar: ' + e.message);
+    }
+  };
+
+  /* Auto-check al cargar la app */
+  const otaAutoCheckAlInicio = async () => {
+    const cfg = otaCargarConfig();
+    if (!cfg.auto || !cfg.url) return;
+    try {
+      const res  = await fetch(cfg.url + (cfg.url.includes('?') ? '&' : '?') + '_t=' + Date.now());
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.version || !data.url) return;
+      if (otaCompararVersiones(OTA_VERSION_ACTUAL, data.version) < 0) {
+        if (data.version === cfg.skipVer) return; // usuario lo saltó antes
+        setTimeout(() => otaMostrarBarra(data), 2000); // espera 2s para no interrumpir carga
+      }
+    } catch(e) { /* silencioso si falla la red */ }
+  };
+  otaAutoCheckAlInicio();
+
+  /* BLUETOOTH */
+  window.abrirImpresion = () => { if(!isAndroid){alert('Solo funciona en la app Android.');return;} AndroidBridge.iniciarImpresion(); };
+  window.mostrarModalBluetooth = () => {
+    const body=document.getElementById('btBody');
+    body.innerHTML='<div class="bt-loading"><div class="bt-spinner"></div><p>Buscando impresoras…</p></div>';
+    document.getElementById('modalBluetooth').classList.add('open');
+    setTimeout(()=>{
+      try{
+        const dispositivos=JSON.parse(AndroidBridge.obtenerDispositivosBT());
+        if(!dispositivos.length){body.innerHTML='<div class="bt-empty"><div style="font-size:34px;margin-bottom:6px">📡</div><p>No hay impresoras vinculadas.</p></div><div class="bt-tip">💡 Vincúlala en Ajustes → Bluetooth.</div>';return;}
+        body.innerHTML=`<p style="font-size:10px;color:#888;margin-bottom:8px;text-align:center">Selecciona tu impresora</p><div>${dispositivos.map(d=>`<div class="bt-device" onclick="imprimirEn('${d.mac}','${d.nombre.replace(/'/g,"\\'")}')"><div><div class="bt-device-name">🖨️ ${d.nombre}</div><div class="bt-device-mac">${d.mac}</div></div><div class="bt-device-arrow">›</div></div>`).join('')}</div><div class="bt-tip">💡 ¿No ves tu impresora? Vincúlala en Ajustes → Bluetooth.</div>`;
+      }catch(e){body.innerHTML='<div class="bt-empty">❌ Error al leer dispositivos.</div>';}
+    },600);
+  };
+  window.imprimirEn = (mac,nombre) => {
+    document.getElementById('btBody').innerHTML=`<div class="bt-loading"><div class="bt-spinner"></div><p>Conectando con <strong>${nombre}</strong>…</p></div>`;
+    AndroidBridge.imprimirEnDispositivo(mac,buildTextoRecibo(false));
+    setTimeout(()=>cerrarModal('modalBluetooth'),3000);
+  };
+</script>
+</body>
+</html>
