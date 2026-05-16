@@ -1171,15 +1171,37 @@
     document.getElementById('modalOTA').classList.remove('open');
   };
 
+  /* Helper: GET con XMLHttpRequest (más compatible con WebView Android que fetch) */
+  const xhrGet = (url, responseType) => new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now(), true);
+    if (responseType) xhr.responseType = responseType;
+    xhr.timeout = 15000;
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+      else reject(new Error('HTTP ' + xhr.status));
+    };
+    xhr.onerror   = () => reject(new Error('Sin conexión o CORS bloqueado'));
+    xhr.ontimeout = () => reject(new Error('Tiempo de espera agotado'));
+    xhr.send();
+  });
+
   window.otaCheck = async () => {
     const url = document.getElementById('otaUrlInput').value.trim();
     if (!url) { otaSetStatus('⚠️ Ingresa la URL del servidor', 'err'); return; }
     localStorage.setItem('otaUrl', url);
     otaSetStatus('🔍 Buscando…');
     try {
-      const res  = await fetch(url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now());
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
+      let data;
+      /* 1. Intenta via AndroidBridge si está disponible (sin CORS) */
+      if (isAndroid && typeof AndroidBridge.descargarTexto === 'function') {
+        const txt = AndroidBridge.descargarTexto(url);
+        data = JSON.parse(txt);
+      } else {
+        /* 2. Fallback: XMLHttpRequest */
+        const txt = await xhrGet(url, 'text');
+        data = JSON.parse(txt);
+      }
       if (!data.version || !data.url) throw new Error('Respuesta inválida del servidor');
 
       document.getElementById('otaVerNueva').textContent = 'v' + data.version;
@@ -1187,7 +1209,6 @@
 
       if (otaCompararVersiones(OTA_VERSION_ACTUAL, data.version) < 0) {
         otaSetStatus('✅ ¡Nueva versión disponible! v' + data.version, 'ok');
-        // También muestra la barra flotante si el modal está cerrado
         otaMostrarBarra(data);
       } else {
         otaSetStatus('✅ Ya tienes la versión más reciente', 'ok');
@@ -1218,52 +1239,66 @@
     document.getElementById('modalOTA').classList.remove('open');
 
     const overlay = document.getElementById('otaProgressOverlay');
-    const bar     = document.getElementById('otaProgressBar');
+    const barEl   = document.getElementById('otaProgressBar');
     const pct     = document.getElementById('otaProgressPct');
     const sub     = document.getElementById('otaProgressSub');
     overlay.classList.add('show');
-    bar.style.width = '0%';
+    barEl.style.width = '0%';
     pct.textContent = '0%';
     sub.textContent = 'Descargando v' + data.version + '…';
 
+    const setProgress = (p) => {
+      barEl.style.width = p + '%';
+      pct.textContent   = p + '%';
+    };
+
     try {
-      // Fetch con progreso usando ReadableStream
-      const res = await fetch(data.url);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      let htmlText = '';
 
-      const total  = parseInt(res.headers.get('content-length') || '0');
-      const reader = res.body.getReader();
-      let received = 0;
-      const chunks = [];
+      /* ── VÍA 1: AndroidBridge.descargarHTML (sin CORS, recomendado) ── */
+      if (isAndroid && typeof AndroidBridge.descargarHTML === 'function') {
+        sub.textContent = 'Descargando vía app…';
+        setProgress(30);
+        htmlText = AndroidBridge.descargarHTML(data.url);
+        setProgress(100);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.length;
-        const p = total > 0 ? Math.round((received / total) * 100) : Math.min(received / 1024, 99);
-        bar.style.width = (total > 0 ? p : Math.min(p, 95)) + '%';
-        pct.textContent = (total > 0 ? p : '…') + (total > 0 ? '%' : ' KB');
+      /* ── VÍA 2: XMLHttpRequest con progreso (fallback web/WebView) ── */
+      } else {
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', data.url, true);
+          xhr.responseType = 'text';
+          xhr.timeout = 30000;
+          xhr.onprogress = e => {
+            if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 95));
+            else setProgress(Math.min(50, Math.round(e.loaded / 1024)));
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              htmlText = xhr.responseText;
+              setProgress(100);
+              resolve();
+            } else {
+              reject(new Error('HTTP ' + xhr.status));
+            }
+          };
+          xhr.onerror   = () => reject(new Error('Sin conexión o CORS bloqueado.
+Verifica que la URL es correcta y pública.'));
+          xhr.ontimeout = () => reject(new Error('Tiempo de espera agotado (30s)'));
+          xhr.send();
+        });
       }
 
-      bar.style.width = '100%';
-      pct.textContent = '100%';
+      if (!htmlText || htmlText.length < 100) throw new Error('Archivo descargado vacío o inválido');
+
       sub.textContent = '✅ Descarga completa. Instalando…';
-
-      // Reconstruir el texto del HTML
-      const blob    = new Blob(chunks);
-      const htmlText = await blob.text();
-
-      // Guardar la versión nueva en localStorage para que al recargar ya tenga la nueva
-      localStorage.setItem('otaUrl',  data.url);
+      localStorage.setItem('otaUrl', localStorage.getItem('otaUrl') || '');
 
       setTimeout(() => {
         overlay.classList.remove('show');
         if (isAndroid && typeof AndroidBridge.reemplazarHTML === 'function') {
-          // Android: el bridge reemplaza el archivo HTML interno y recarga la WebView
           AndroidBridge.reemplazarHTML(htmlText);
         } else {
-          // Web/fallback: descarga el archivo y pide al usuario que lo abra
           const a   = document.createElement('a');
           a.download = 'recibo-chances-v' + data.version + '.html';
           a.href     = URL.createObjectURL(new Blob([htmlText], {type:'text/html'}));
@@ -1283,9 +1318,14 @@
     const cfg = otaCargarConfig();
     if (!cfg.auto || !cfg.url) return;
     try {
-      const res  = await fetch(cfg.url + (cfg.url.includes('?') ? '&' : '?') + '_t=' + Date.now());
-      if (!res.ok) return;
-      const data = await res.json();
+      let data;
+      if (isAndroid && typeof AndroidBridge.descargarTexto === 'function') {
+        const txt = AndroidBridge.descargarTexto(cfg.url);
+        data = JSON.parse(txt);
+      } else {
+        const txt = await xhrGet(cfg.url, 'text');
+        data = JSON.parse(txt);
+      }
       if (!data.version || !data.url) return;
       if (otaCompararVersiones(OTA_VERSION_ACTUAL, data.version) < 0) {
         if (data.version === cfg.skipVer) return; // usuario lo saltó antes
