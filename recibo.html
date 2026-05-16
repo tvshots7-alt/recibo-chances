@@ -376,7 +376,7 @@
     <div class="info-grid">
       <div class="info-field">
         <label>Código</label>
-        <input id="codigo" placeholder="90011" value="90011" inputmode="numeric">
+        <input id="codigo" placeholder="Ej: A001" value="90011" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
         <span class="pv" id="pv-codigo"></span>
       </div>
       <div class="info-field">
@@ -440,11 +440,11 @@
     <!-- Tabla exclusiva para impresion — generada por JS en sincronizar() -->
     <table class="print-numeros" id="printNumeros">
       <thead>
-      <tr>
-        <td class="th-nums">Números Jugados</td>
-        <td class="th-vlr">Valor</td>
-        <td class="th-tot">Total</td>
-      </tr>
+        <tr>
+          <td class="th-nums">Números Jugados</td>
+          <td class="th-vlr">Valor</td>
+          <td class="th-tot">Total</td>
+        </tr>
       </thead>
       <tbody id="printNumerosBody"></tbody>
     </table>
@@ -677,17 +677,21 @@
       return tr;
     };
 
+    /* Devuelve cuántas loterías están activas */
+    const contarLoterias = () => document.querySelectorAll('#tablaLoterias td.activa').length;
+
     const recalcularFila = tr => {
-      const inputs  = tr.querySelectorAll('input');
+      const inputs    = tr.querySelectorAll('input');
       const numInputs = [inputs[0],inputs[1],inputs[2],inputs[3],inputs[4]];
-      const vfInput = inputs[5];
-      const tfInput = inputs[6];
-      const vlr     = parseFloat(vfInput.value);
-      const precio  = (!isNaN(vlr) && vlr > 0) ? vlr : 0;
-      const llenos  = numInputs.filter(i => i.value.trim() !== '').length;
+      const vfInput   = inputs[5];
+      const tfInput   = inputs[6];
+      const vlr       = parseFloat(vfInput.value);
+      const precio    = (!isNaN(vlr) && vlr > 0) ? vlr : 0;
+      const llenos    = numInputs.filter(i => i.value.trim() !== '').length;
+      const loterias  = Math.max(1, contarLoterias()); // mínimo 1 para no romper sin selección
 
       tr.querySelector('.badge-nums').textContent = llenos > 0 ? '×'+llenos : '';
-      tfInput.value = (precio > 0 && llenos > 0) ? precio * llenos : '';
+      tfInput.value = (precio > 0 && llenos > 0) ? precio * llenos * loterias : '';
     };
 
     const recalcularTodasLasFilas = () => {
@@ -730,7 +734,7 @@
               loteriasCustom = loteriasCustom.filter(n => n !== nom);
               localStorage.setItem('loteriasCustom', JSON.stringify(loteriasCustom));
               renderCustomLoterias(); aplicarOcultas(); showToast('🗑 Lotería eliminada');
-            } else { td.classList.toggle('activa'); }
+            } else { td.classList.toggle('activa'); recalcularTodasLasFilas(); sincronizar(); }
           });
           tr.appendChild(td);
         });
@@ -750,7 +754,7 @@
             loteriasOcultas.push(nombre); localStorage.setItem('loteriasOcultas', JSON.stringify(loteriasOcultas));
             td.classList.add('oculta'); document.getElementById('btnRestaurar').style.display='inline';
           }
-        } else { td.classList.toggle('activa'); }
+        } else { td.classList.toggle('activa'); recalcularTodasLasFilas(); sincronizar(); }
       });
     });
 
