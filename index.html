@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Recibo de Chances</title>
-  <!-- Versión actual del recibo -->
   <meta name="ota-version" content="1.0.0">
 
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,8 +34,13 @@
     .info-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:5px;margin-bottom:9px}
     .info-field{display:flex;flex-direction:column;gap:1px}
     .info-field label{font-size:7px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--primary);opacity:.8}
+    /* Input BASE — usado por Día, Mes, Año (numérico) */
     .info-field input{border:none;border-bottom:1.5px solid var(--primary-border);padding:2px 2px;font-size:12px;font-weight:700;color:var(--dark);font-family:'DM Sans',sans-serif;background:transparent;width:100%;text-align:center}
     .info-field input:focus{outline:none;border-color:var(--primary)}
+    /* Input CÓDIGO — forzado alfanumérico */
+    .info-field input#codigo{
+      -webkit-user-modify: read-write-plaintext-only;
+    }
 
     .sep{display:flex;align-items:center;gap:5px;margin:2px 0 7px}
     .sep-line{flex:1;height:1px;background:var(--primary-border)}
@@ -69,7 +73,6 @@
     .tabla-loterias td.oculta{display:none}
     .tabla-loterias td.custom-lot{border-style:dashed}
 
-    /* TABLA NÚMEROS — 7 cols: N1 N2 N3 N4 N5 | VLR | TOTAL */
     .numeros{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:7px;border:1.5px solid var(--primary-border);border-radius:7px;overflow:hidden}
     .numeros thead tr{background:linear-gradient(90deg,var(--primary),var(--primary-light))}
     .numeros thead td{padding:4px 1px;font-size:7px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.92);text-align:center;border:none}
@@ -166,8 +169,6 @@
     @keyframes flipIn{0%{transform:translateY(10px) scaleY(.4);opacity:0}100%{transform:translateY(0) scaleY(1);opacity:1}}
 
     .pv{display:none}
-
-    /* ── Tabla de impresión — oculta en pantalla, visible solo al imprimir ── */
     .print-numeros{display:none}
 
     @media print {
@@ -184,85 +185,29 @@
       .numero-recibo .num{font-size:20px !important;color:white !important}
       .numero-recibo .label{color:rgba(255,255,255,.7) !important;font-size:6px !important}
       .ticket-body{padding:6px 5px 5px !important}
-
-      /* Ocultar controles de pantalla */
       .botones,.modal-overlay,.toast,.btn-add-row,.btn-edit-lot,.btn-rest-lot,
       .btn-add-lot,.add-lot-form,.badge-nums,.section-title{display:none !important}
-
-      /* Loterías */
       .tabla-loterias td.oculta{display:none !important}
       .tabla-loterias td{padding:3px 2px !important;font-size:9px !important;border:1px solid #ccc !important;border-radius:2px !important}
       .tabla-loterias td:not(.activa){color:#ccc !important;background:white !important}
       .tabla-loterias td.activa{background:#e8f5e9 !important;color:#2e7d32 !important;border:1.5px solid #43a047 !important;font-weight:700 !important}
-
-      /* Info fields */
       .info-field input{display:none !important}
       .pv{display:block !important;font-size:11px !important;font-weight:700 !important;text-align:center !important;color:#222 !important}
-
-      /* Ocultar la tabla original de números — la reemplaza .print-numeros */
-      .numeros, .btn-add-row{display:none !important}
-
-      /* ── Tabla de impresión: layout amplio con columnas generosas ── */
-      .print-numeros{
-        display:table !important;
-        width:100% !important;
-        border-collapse:collapse !important;
-        margin-bottom:6px !important;
-        border:1.5px solid #bbb !important;
-      }
+      .numeros,.btn-add-row{display:none !important}
+      .print-numeros{display:table !important;width:100% !important;border-collapse:collapse !important;margin-bottom:6px !important;border:1.5px solid #bbb !important}
       .print-numeros thead tr{background:var(--primary) !important}
-      .print-numeros thead td{
-        color:white !important;
-        font-size:9px !important;
-        font-weight:700 !important;
-        text-transform:uppercase !important;
-        padding:4px 3px !important;
-        text-align:center !important;
-        letter-spacing:.3px !important;
-        border:none !important;
-      }
+      .print-numeros thead td{color:white !important;font-size:9px !important;font-weight:700 !important;text-transform:uppercase !important;padding:4px 3px !important;text-align:center !important;border:none !important}
       .print-numeros thead td.th-nums{background:rgba(0,0,0,.15) !important}
       .print-numeros thead td.th-vlr{background:rgba(0,0,0,.25) !important;width:22% !important}
       .print-numeros thead td.th-tot{background:rgba(0,135,90,.5) !important;width:22% !important}
       .print-numeros tbody tr{border-top:1px solid #ddd !important}
       .print-numeros tbody tr:nth-child(even){background:#fdf5f8 !important}
-      .print-numeros tbody td{
-        padding:5px 4px !important;
-        text-align:center !important;
-        vertical-align:middle !important;
-        font-size:13px !important;
-        font-weight:700 !important;
-        color:#111 !important;
-        border-right:1px solid #e0e0e0 !important;
-        font-family:'DM Sans',Arial,sans-serif !important;
-        white-space:nowrap !important;
-      }
+      .print-numeros tbody td{padding:5px 4px !important;text-align:center !important;vertical-align:middle !important;font-size:13px !important;font-weight:700 !important;color:#111 !important;border-right:1px solid #e0e0e0 !important;font-family:'DM Sans',Arial,sans-serif !important;white-space:nowrap !important}
       .print-numeros tbody td:last-child{border-right:none !important}
-      .print-numeros tbody td.pn-nums{
-        text-align:left !important;
-        font-size:13px !important;
-        letter-spacing:.5px !important;
-        padding-left:6px !important;
-      }
-      .print-numeros tbody td.pn-nums .circ{
-        text-decoration:underline !important;
-        font-weight:900 !important;
-        color:var(--primary) !important;
-      }
-      .print-numeros tbody td.pn-vlr{
-        color:var(--primary) !important;
-        font-weight:800 !important;
-        font-size:13px !important;
-        background:#fdf0f5 !important;
-      }
-      .print-numeros tbody td.pn-tot{
-        color:#00875a !important;
-        font-weight:800 !important;
-        font-size:13px !important;
-        background:#f0fdf4 !important;
-      }
-
-      /* Total */
+      .print-numeros tbody td.pn-nums{text-align:left !important;font-size:13px !important;letter-spacing:.5px !important;padding-left:6px !important}
+      .print-numeros tbody td.pn-nums .circ{text-decoration:underline !important;font-weight:900 !important;color:var(--primary) !important}
+      .print-numeros tbody td.pn-vlr{color:var(--primary) !important;font-weight:800 !important;font-size:13px !important;background:#fdf0f5 !important}
+      .print-numeros tbody td.pn-tot{color:#00875a !important;font-weight:800 !important;font-size:13px !important;background:#f0fdf4 !important}
       #total{display:none !important}
       .pv-total{display:block !important;font-size:15px !important;font-weight:800 !important;color:#00875a !important;text-align:right !important}
       .total-box{background:#fff0f5 !important;border:1.5px solid var(--primary) !important;padding:5px 8px !important;border-radius:3px !important;margin-bottom:0 !important}
@@ -271,90 +216,52 @@
       .sep{margin:3px 0 5px !important}
     }
 
-    /* ══════════════════════════════════════════════
-       MÓDULO OTA — Actualización automática
-       ══════════════════════════════════════════════ */
-    .ota-bar{
-      display:none;position:fixed;bottom:0;left:0;right:0;z-index:99999;
-      background:linear-gradient(135deg,#1a237e,#3949ab);
-      color:white;padding:10px 14px;
-      display:flex;align-items:center;justify-content:space-between;gap:8px;
-      box-shadow:0 -4px 20px rgba(0,0,0,.35);
-      animation:slideUpBar .4s cubic-bezier(.34,1.56,.64,1);
-      font-family:'DM Sans',sans-serif;
-    }
+    /* OTA */
+    .ota-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#1a237e,#3949ab);color:white;padding:10px 14px;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 -4px 20px rgba(0,0,0,.35);animation:slideUpBar .4s cubic-bezier(.34,1.56,.64,1);font-family:'DM Sans',sans-serif}
     .ota-bar.hidden{display:none !important}
     @keyframes slideUpBar{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
     .ota-bar-text{flex:1}
     .ota-bar-title{font-weight:700;font-size:13px;line-height:1.2}
     .ota-bar-sub{font-size:10px;opacity:.75;margin-top:1px}
     .ota-bar-btns{display:flex;gap:6px;flex-shrink:0}
-    .ota-btn-update{background:#4caf50;color:white;border:none;border-radius:20px;
-      padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
-      font-family:'DM Sans',sans-serif;white-space:nowrap;
-      box-shadow:0 2px 8px rgba(0,0,0,.25);transition:all .15s}
+    .ota-btn-update{background:#4caf50;color:white;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25);transition:all .15s}
     .ota-btn-update:active{opacity:.8;transform:scale(.95)}
-    .ota-btn-skip{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);
-      border-radius:20px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;
-      font-family:'DM Sans',sans-serif;transition:all .15s}
-    .ota-btn-skip:active{opacity:.8}
-
-    .ota-progress-overlay{
-      display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);
-      z-index:100000;flex-direction:column;align-items:center;justify-content:center;
-      gap:16px;font-family:'DM Sans',sans-serif;
-    }
+    .ota-btn-skip{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .ota-progress-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:100000;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:'DM Sans',sans-serif}
     .ota-progress-overlay.show{display:flex}
-    .ota-progress-box{
-      background:white;border-radius:18px;padding:28px 28px 22px;
-      width:calc(100% - 40px);max-width:340px;text-align:center;
-    }
+    .ota-progress-box{background:white;border-radius:18px;padding:28px 28px 22px;width:calc(100% - 40px);max-width:340px;text-align:center}
     .ota-progress-icon{font-size:36px;margin-bottom:8px}
     .ota-progress-title{font-weight:800;font-size:16px;color:#1a237e;margin-bottom:4px}
     .ota-progress-sub{font-size:12px;color:#666;margin-bottom:16px;line-height:1.5}
     .ota-progress-bar-wrap{background:#e8eaf6;border-radius:99px;height:8px;overflow:hidden;margin-bottom:8px}
-    .ota-progress-bar{height:100%;background:linear-gradient(90deg,#3949ab,#64b5f6);
-      border-radius:99px;width:0%;transition:width .3s ease;animation:shimmer 1.5s infinite linear}
-    @keyframes shimmer{0%{filter:brightness(1)}50%{filter:brightness(1.3)}100%{filter:brightness(1)}}
+    .ota-progress-bar{height:100%;background:linear-gradient(90deg,#3949ab,#64b5f6);border-radius:99px;width:0%;transition:width .3s ease}
     .ota-progress-pct{font-size:11px;color:#888;font-weight:600}
-
-    .modal-ota{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
-      z-index:100001;backdrop-filter:blur(5px);justify-content:center;align-items:center;
-      font-family:'DM Sans',sans-serif;}
+    .modal-ota{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100001;backdrop-filter:blur(5px);justify-content:center;align-items:center;font-family:'DM Sans',sans-serif}
     .modal-ota.open{display:flex}
-    .modal-ota-box{background:white;border-radius:20px;width:calc(100% - 32px);max-width:360px;overflow:hidden;
-      animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+    .modal-ota-box{background:white;border-radius:20px;width:calc(100% - 32px);max-width:360px;overflow:hidden;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
     @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
     .modal-ota-header{background:linear-gradient(135deg,#1a237e,#3949ab);padding:18px 18px 14px;text-align:center}
     .modal-ota-header h2{color:white;font-size:18px;font-weight:800;letter-spacing:.5px}
     .modal-ota-header p{color:rgba(255,255,255,.75);font-size:11px;margin-top:3px}
     .modal-ota-body{padding:16px}
-    .ota-version-row{display:flex;justify-content:space-between;align-items:center;
-      background:#f5f5f5;border-radius:10px;padding:10px 14px;margin-bottom:10px}
+    .ota-version-row{display:flex;justify-content:space-between;align-items:center;background:#f5f5f5;border-radius:10px;padding:10px 14px;margin-bottom:10px}
     .ota-version-label{font-size:11px;color:#888;font-weight:600}
     .ota-version-val{font-size:13px;font-weight:800;color:#1a237e}
     .ota-version-val.new{color:#2e7d32}
     .ota-url-label{font-size:10px;font-weight:700;color:#555;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase}
-    .ota-url-input{width:100%;border:1.5px solid #c7d2fe;border-radius:9px;padding:8px 10px;
-      font-size:12px;font-family:'DM Sans',sans-serif;color:#333;margin-bottom:10px;
-      background:#f8f9ff;}
+    .ota-url-input{width:100%;border:1.5px solid #c7d2fe;border-radius:9px;padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:#333;margin-bottom:10px;background:#f8f9ff}
     .ota-url-input:focus{outline:none;border-color:#3949ab}
-    .ota-check-btn{width:100%;background:linear-gradient(135deg,#1a237e,#3949ab);color:white;border:none;
-      border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;
-      font-family:'DM Sans',sans-serif;margin-bottom:8px;transition:opacity .15s}
+    .ota-check-btn{width:100%;background:linear-gradient(135deg,#1a237e,#3949ab);color:white;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:8px;transition:opacity .15s}
     .ota-check-btn:active{opacity:.85}
-    .ota-auto-row{display:flex;align-items:center;justify-content:space-between;
-      background:#f5f5f5;border-radius:10px;padding:9px 12px;margin-bottom:8px}
+    .ota-auto-row{display:flex;align-items:center;justify-content:space-between;background:#f5f5f5;border-radius:10px;padding:9px 12px;margin-bottom:8px}
     .ota-auto-label{font-size:12px;font-weight:600;color:#333}
     .ota-toggle{position:relative;width:40px;height:22px;flex-shrink:0}
     .ota-toggle input{opacity:0;width:0;height:0}
     .ota-toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:99px;cursor:pointer;transition:.3s}
-    .ota-toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;
-      background:white;border-radius:50%;transition:.3s}
+    .ota-toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:white;border-radius:50%;transition:.3s}
     .ota-toggle input:checked+.ota-toggle-slider{background:#3949ab}
     .ota-toggle input:checked+.ota-toggle-slider::before{transform:translateX(18px)}
-    .ota-close-btn{width:100%;background:#f0f0f0;color:#555;border:none;border-radius:10px;
-      padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .ota-close-btn{width:100%;background:#f0f0f0;color:#555;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
     .ota-status{font-size:11px;text-align:center;padding:5px 0;min-height:20px;color:#555;font-weight:600}
     .ota-status.ok{color:#2e7d32}.ota-status.err{color:#c62828}
   </style>
@@ -376,22 +283,40 @@
     <div class="info-grid">
       <div class="info-field">
         <label>Código</label>
-        <input id="codigo" placeholder="Ej: A001" value="90011" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+        <!--
+          FIX ANDROID WEBVIEW:
+          - type="text"        → fuerza teclado alfanumérico (sin esto Android usa numérico si el valor es un número)
+          - inputmode="text"   → hint explícito al IME
+          - autocapitalize="characters" → mayúsculas automáticas
+          - autocomplete="off" / autocorrect="off" / spellcheck="false" → sin sugerencias
+          NO usar type="number" ni inputmode="numeric" en este campo
+        -->
+        <input
+                id="codigo"
+                type="text"
+                inputmode="text"
+                placeholder="Ej: A001"
+                value="90011"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="characters"
+                spellcheck="false"
+        >
         <span class="pv" id="pv-codigo"></span>
       </div>
       <div class="info-field">
         <label>Día</label>
-        <input id="dia" placeholder="DD" maxlength="2" inputmode="numeric">
+        <input id="dia" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="DD" maxlength="2">
         <span class="pv" id="pv-dia"></span>
       </div>
       <div class="info-field">
         <label>Mes</label>
-        <input id="mes" placeholder="MM" maxlength="2" inputmode="numeric">
+        <input id="mes" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="MM" maxlength="2">
         <span class="pv" id="pv-mes"></span>
       </div>
       <div class="info-field">
         <label>Año</label>
-        <input id="anio" placeholder="AA" maxlength="2" inputmode="numeric">
+        <input id="anio" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="AA" maxlength="2">
         <span class="pv" id="pv-anio"></span>
       </div>
     </div>
@@ -408,7 +333,7 @@
     </div>
 
     <div class="add-lot-form" id="addLotForm">
-      <input type="text" id="nuevaLotInput" placeholder="Ej: Nariño, Risaralda…" maxlength="12">
+      <input type="text" id="nuevaLotInput" placeholder="Ej: Nariño, Risaralda…" maxlength="12" autocomplete="off" autocorrect="off" spellcheck="false">
       <button class="btn-confirm-lot" onclick="confirmarNuevaLoteria()">✓</button>
       <button class="btn-cancel-lot" onclick="cancelarAddLot()">✕</button>
     </div>
@@ -423,7 +348,6 @@
 
     <div class="sep"><div class="sep-line"></div><div class="sep-dot"></div><div class="sep-line"></div></div>
 
-    <!-- NÚMEROS: N1 N2 N3 N4 N5 | VLR/NRO | TOTAL -->
     <div class="section-title" style="margin-bottom:5px">Números Jugados</div>
     <table class="numeros" id="tablaNumeros">
       <thead>
@@ -437,14 +361,13 @@
     </table>
     <button class="btn-add-row" onclick="agregarFila()">＋ Agregar fila</button>
 
-    <!-- Tabla exclusiva para impresion — generada por JS en sincronizar() -->
     <table class="print-numeros" id="printNumeros">
       <thead>
-        <tr>
-          <td class="th-nums">Números Jugados</td>
-          <td class="th-vlr">Valor</td>
-          <td class="th-tot">Total</td>
-        </tr>
+      <tr>
+        <td class="th-nums">Números Jugados</td>
+        <td class="th-vlr">Valor</td>
+        <td class="th-tot">Total</td>
+      </tr>
       </thead>
       <tbody id="printNumerosBody"></tbody>
     </table>
@@ -453,7 +376,7 @@
       <div class="total-label">TOTAL</div>
       <div class="total-right">
         <span class="total-sign">$</span>
-        <input id="total" type="number" inputmode="decimal" placeholder="0">
+        <input id="total" type="text" inputmode="decimal" placeholder="0">
         <span class="pv pv-total" id="pv-total"></span>
       </div>
     </div>
@@ -563,9 +486,7 @@
   </div>
 </div>
 
-
-<!-- ══════ MÓDULO OTA ══════ -->
-<!-- Barra de nueva versión disponible -->
+<!-- OTA -->
 <div class="ota-bar hidden" id="otaBar">
   <div class="ota-bar-text">
     <div class="ota-bar-title">🚀 Nueva versión disponible</div>
@@ -577,7 +498,6 @@
   </div>
 </div>
 
-<!-- Overlay de progreso de descarga -->
 <div class="ota-progress-overlay" id="otaProgressOverlay">
   <div class="ota-progress-box">
     <div class="ota-progress-icon">⬇️</div>
@@ -588,7 +508,6 @@
   </div>
 </div>
 
-<!-- Modal principal OTA -->
 <div class="modal-ota" id="modalOTA">
   <div class="modal-ota-box">
     <div class="modal-ota-header">
@@ -612,7 +531,6 @@
     </div>
   </div>
 </div>
-<!-- ══════ FIN MÓDULO OTA ══════ -->
 
 <div class="toast" id="toast"></div>
 
@@ -641,21 +559,22 @@
     };
     actualizarNumero();
 
+    /* CREAR FILA */
     const crearFila = () => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
-        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
-        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
-        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
-        <td><input maxlength="4" inputmode="numeric"><span class="pv"></span></td>
+        <td><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"><span class="pv"></span></td>
+        <td><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"><span class="pv"></span></td>
+        <td><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"><span class="pv"></span></td>
+        <td><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"><span class="pv"></span></td>
+        <td><input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4"><span class="pv"></span></td>
         <td class="col-vf">
           <span class="badge-nums"></span>
-          <input type="number" inputmode="decimal" min="0" placeholder="—">
+          <input type="text" inputmode="decimal" placeholder="—">
           <span class="pv"></span>
         </td>
         <td class="col-tf">
-          <input class="valor" type="number" readonly tabindex="-1" placeholder="0">
+          <input class="valor" type="text" readonly tabindex="-1" placeholder="0">
           <span class="pv valor"></span>
         </td>`;
 
@@ -673,11 +592,9 @@
       [inputs[0],inputs[1],inputs[2],inputs[3],inputs[4],inputs[5]].forEach(inp => {
         inp.addEventListener('input', () => { recalcularFila(tr); recalcularTotal(); sincronizar(); });
       });
-
       return tr;
     };
 
-    /* Devuelve cuántas loterías están activas */
     const contarLoterias = () => document.querySelectorAll('#tablaLoterias td.activa').length;
 
     const recalcularFila = tr => {
@@ -688,8 +605,7 @@
       const vlr       = parseFloat(vfInput.value);
       const precio    = (!isNaN(vlr) && vlr > 0) ? vlr : 0;
       const llenos    = numInputs.filter(i => i.value.trim() !== '').length;
-      const loterias  = Math.max(1, contarLoterias()); // mínimo 1 para no romper sin selección
-
+      const loterias  = Math.max(1, contarLoterias());
       tr.querySelector('.badge-nums').textContent = llenos > 0 ? '×'+llenos : '';
       tfInput.value = (precio > 0 && llenos > 0) ? precio * llenos * loterias : '';
     };
@@ -709,7 +625,7 @@
     for (let i = 0; i < 10; i++) tbody.appendChild(crearFila());
     window.agregarFila = () => { tbody.appendChild(crearFila()); showToast('➕ Fila agregada'); };
 
-    /* ── LOTERÍAS ── */
+    /* LOTERÍAS */
     let modoEditLot = false;
     let loteriasOcultas = JSON.parse(localStorage.getItem('loteriasOcultas') || '[]');
     let loteriasCustom  = JSON.parse(localStorage.getItem('loteriasCustom')  || '[]');
@@ -787,15 +703,12 @@
     };
     document.getElementById('nuevaLotInput').addEventListener('keydown', e => { if(e.key==='Enter') confirmarNuevaLoteria(); });
 
-    /* SINCRONIZAR — actualiza .pv y genera tabla de impresión */
+    /* SINCRONIZAR */
     const fmt = n => n ? '$'+Number(n).toLocaleString('es-CO') : '';
     const sincronizar = window.sincronizarParaImpresion = () => {
-      /* Info fields */
       ['codigo','dia','mes','anio'].forEach(id => { const el=document.getElementById(id); if(el) document.getElementById('pv-'+id).textContent=el.value; });
       const tv=document.getElementById('total').value;
       document.getElementById('pv-total').textContent = tv ? '$'+Number(tv).toLocaleString('es-CO') : '$0';
-
-      /* Generar tabla de impresión limpia */
       const pb = document.getElementById('printNumerosBody');
       if (!pb) return;
       pb.innerHTML = '';
@@ -805,20 +718,14 @@
         const nums = [ins[0],ins[1],ins[2],ins[3],ins[4]];
         const vlr  = ins[5] ? ins[5].value : '';
         const tot  = ins[6] ? ins[6].value : '';
-        /* Solo agregar fila si tiene al menos un número */
         if (!nums.some(i => i && i.value.trim())) return;
         const numsParts = nums.map((inp, i) => {
           if (!inp || !inp.value.trim()) return '';
           const circulado = tds[i] && tds[i].classList.contains('circulado');
-          return circulado
-            ? '<span class="circ">(' + inp.value + ')</span>'
-            : inp.value;
+          return circulado ? '<span class="circ">('+inp.value+')</span>' : inp.value;
         }).filter(Boolean).join(' - ');
         const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td class="pn-nums">' + numsParts + '</td>' +
-          '<td class="pn-vlr">' + (vlr ? fmt(vlr) : '—') + '</td>' +
-          '<td class="pn-tot">' + (tot ? fmt(tot) : '—') + '</td>';
+        tr.innerHTML = '<td class="pn-nums">'+numsParts+'</td><td class="pn-vlr">'+(vlr?fmt(vlr):'—')+'</td><td class="pn-tot">'+(tot?fmt(tot):'—')+'</td>';
         pb.appendChild(tr);
       });
     };
@@ -866,16 +773,9 @@
       localStorage.setItem('historialChances',JSON.stringify(h));
     };
 
-    /* ── CAPTURAR TICKET ──
-       Antes de capturar con html2canvas:
-       1. Oculta botones y tabla original de inputs
-       2. Muestra la tabla de impresión limpia (print-numeros)
-       3. Captura
-       4. Restaura todo
-    */
+    /* CAPTURAR TICKET */
     const capturarTicket = () => new Promise((resolve, reject) => {
-      sincronizar(); // asegura que printNumerosBody esté actualizado
-
+      sincronizar();
       const botones      = document.querySelector('.botones');
       const btnAddRow    = document.querySelector('.btn-add-row');
       const tablaOrig    = document.getElementById('tablaNumeros');
@@ -883,22 +783,15 @@
       const sectionTitle = document.querySelector('.section-title');
       const lotBtns      = document.querySelector('.lot-btns');
 
-      // Ocultar elementos de pantalla
       botones.style.display      = 'none';
       if (btnAddRow)    btnAddRow.style.display    = 'none';
       if (sectionTitle) sectionTitle.style.display = 'none';
       if (lotBtns)      lotBtns.style.display      = 'none';
-
-      // Intercambiar tablas
       tablaOrig.style.display  = 'none';
       printTabla.style.display = 'table';
 
-      // Aplicar estilos de la tabla print directamente (html2canvas ignora @media print)
       const primary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#9c2e5a';
-      printTabla.style.cssText = `
-        display:table;width:100%;border-collapse:collapse;
-        margin-bottom:6px;border:1.5px solid #bbb;font-family:'DM Sans',Arial,sans-serif;
-      `;
+      printTabla.style.cssText = 'display:table;width:100%;border-collapse:collapse;margin-bottom:6px;border:1.5px solid #bbb;font-family:\'DM Sans\',Arial,sans-serif;';
       const thead = printTabla.querySelector('thead tr');
       if (thead) {
         thead.style.background = primary;
@@ -920,13 +813,11 @@
         });
       });
 
-      // Estilizar info-fields: ocultar inputs, mostrar pvs
       const infoInputs = document.querySelectorAll('.info-field input');
       const infoPvs    = document.querySelectorAll('.info-field .pv');
       infoInputs.forEach(el => el.style.display = 'none');
       infoPvs.forEach(el => { el.style.display='block'; el.style.fontSize='12px'; el.style.fontWeight='700'; el.style.textAlign='center'; el.style.color='#222'; });
 
-      // Ocultar input total, mostrar pv-total
       const totalInput = document.getElementById('total');
       const totalPv    = document.getElementById('pv-total');
       const totalSign  = document.querySelector('.total-sign');
@@ -934,37 +825,24 @@
       if (totalSign)  totalSign.style.display  = 'none';
       if (totalPv)    { totalPv.style.display='block'; totalPv.style.fontSize='16px'; totalPv.style.fontWeight='800'; totalPv.style.color='#00875a'; }
 
+      const restore = () => {
+        botones.style.display      = '';
+        if (btnAddRow)    btnAddRow.style.display    = '';
+        if (sectionTitle) sectionTitle.style.display = '';
+        if (lotBtns)      lotBtns.style.display      = '';
+        tablaOrig.style.display  = '';
+        printTabla.style.display = 'none';
+        infoInputs.forEach(el => el.style.display = '');
+        infoPvs.forEach(el    => el.style.display = '');
+        if (totalInput) totalInput.style.display = '';
+        if (totalSign)  totalSign.style.display  = '';
+        if (totalPv)    totalPv.style.display    = '';
+      };
+
       setTimeout(() => {
         html2canvas(document.getElementById('ticketEl'), {
           scale:2.5, useCORS:true, backgroundColor:'#ffffff', logging:false
-        }).then(c => {
-          // Restaurar todo
-          botones.style.display      = '';
-          if (btnAddRow)    btnAddRow.style.display    = '';
-          if (sectionTitle) sectionTitle.style.display = '';
-          if (lotBtns)      lotBtns.style.display      = '';
-          tablaOrig.style.display  = '';
-          printTabla.style.display = 'none';
-          infoInputs.forEach(el => el.style.display = '');
-          infoPvs.forEach(el    => el.style.display = '');
-          if (totalInput) totalInput.style.display = '';
-          if (totalSign)  totalSign.style.display  = '';
-          if (totalPv)    totalPv.style.display    = '';
-          resolve(c);
-        }).catch(e => {
-          botones.style.display      = '';
-          if (btnAddRow)    btnAddRow.style.display    = '';
-          if (sectionTitle) sectionTitle.style.display = '';
-          if (lotBtns)      lotBtns.style.display      = '';
-          tablaOrig.style.display  = '';
-          printTabla.style.display = 'none';
-          infoInputs.forEach(el => el.style.display = '');
-          infoPvs.forEach(el    => el.style.display = '');
-          if (totalInput) totalInput.style.display = '';
-          if (totalSign)  totalSign.style.display  = '';
-          if (totalPv)    totalPv.style.display    = '';
-          reject(e);
-        });
+        }).then(c => { restore(); resolve(c); }).catch(e => { restore(); reject(e); });
       }, 350);
     });
 
@@ -972,17 +850,14 @@
       const b64 = canvas.toDataURL('image/png');
       if (isAndroid) {
         if (typeof AndroidBridge.guardarEnGaleria === 'function') {
-          AndroidBridge.guardarEnGaleria(b64);
-          showToast('🖼️ Guardado en galería');
+          AndroidBridge.guardarEnGaleria(b64); showToast('🖼️ Guardado en galería');
         } else if (typeof AndroidBridge.descargarImagen === 'function') {
-          AndroidBridge.descargarImagen(b64);
-          showToast('🖼️ Guardando en galería…');
+          AndroidBridge.descargarImagen(b64); showToast('🖼️ Guardando en galería…');
         }
       } else {
         const a = document.createElement('a');
         a.download = `recibo-${document.getElementById('numeroRecibo').innerText}.png`;
-        a.href = b64; a.click();
-        showToast('⬇️ Descargando recibo…');
+        a.href = b64; a.click(); showToast('⬇️ Descargando recibo…');
       }
     };
 
@@ -1103,236 +978,35 @@
     return `RECIBO #${rec}\nFecha: ${dia}/${mes}/${anio} | Cód: ${cod}\nLoterías: ${lots}\n\nNúmeros:\n${lineas}TOTAL: $${total}`;
   }
 
-
-  /* ══════════════════════════════════════════════════════
-     MÓDULO OTA — Actualización Over-The-Air
-     ══════════════════════════════════════════════════════
-
-     PROTOCOLO:
-     El servidor debe exponer un JSON en la URL configurada:
-     {
-       "version": "1.2.0",
-       "url": "https://tuservidor.com/recibo-chances-v1.2.0.html",
-       "notas": "Correcciones de impresión y nuevas loterías"
-     }
-
-     FLUJO:
-     1. Al abrir (si autoCheck activado): fetch JSON → compara versión
-     2. Si hay nueva: muestra barra de notificación
-     3. Usuario pulsa "Actualizar": descarga el HTML nuevo
-     4. En Android: AndroidBridge.reemplazarHTML(htmlContent)
-        En web: descarga el archivo .html
-     ══════════════════════════════════════════════════════ */
-
+  /* OTA */
   const OTA_VERSION_ACTUAL = document.querySelector('meta[name="ota-version"]')?.content || '1.0.0';
-
-  const otaCompararVersiones = (a, b) => {
-    const pa = a.split('.').map(Number);
-    const pb = b.split('.').map(Number);
-    for (let i = 0; i < 3; i++) {
-      if ((pa[i]||0) < (pb[i]||0)) return -1;
-      if ((pa[i]||0) > (pb[i]||0)) return 1;
-    }
-    return 0;
-  };
-
-  const otaCargarConfig = () => ({
-    url:       localStorage.getItem('otaUrl')       || '',
-    auto:      localStorage.getItem('otaAuto')      === 'true',
-    skipVer:   localStorage.getItem('otaSkipVer')   || '',
-  });
-
-  window.otaGuardarConfig = () => {
-    const url  = document.getElementById('otaUrlInput').value.trim();
-    const auto = document.getElementById('otaAutoCheck').checked;
-    localStorage.setItem('otaUrl',  url);
-    localStorage.setItem('otaAuto', auto);
-  };
-
-  const otaSetStatus = (msg, tipo='') => {
-    const el = document.getElementById('otaStatus');
-    if (!el) return;
-    el.textContent = msg;
-    el.className = 'ota-status' + (tipo ? ' '+tipo : '');
-  };
-
-  window.abrirOTA = () => {
-    const cfg = otaCargarConfig();
-    document.getElementById('otaUrlInput').value      = cfg.url;
-    document.getElementById('otaAutoCheck').checked   = cfg.auto;
-    document.getElementById('otaVerActual').textContent = 'v' + OTA_VERSION_ACTUAL;
-    document.getElementById('otaVerNueva').textContent  = '—';
-    otaSetStatus('');
-    document.getElementById('modalOTA').classList.add('open');
-  };
-
-  window.cerrarModalOTA = () => {
-    otaGuardarConfig();
-    document.getElementById('modalOTA').classList.remove('open');
-  };
-
-  /* Helper: GET con XMLHttpRequest (más compatible con WebView Android que fetch) */
-  const xhrGet = (url, responseType) => new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now(), true);
-    if (responseType) xhr.responseType = responseType;
-    xhr.timeout = 15000;
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
-      else reject(new Error('HTTP ' + xhr.status));
-    };
-    xhr.onerror   = () => reject(new Error('Sin conexión o CORS bloqueado'));
-    xhr.ontimeout = () => reject(new Error('Tiempo de espera agotado'));
-    xhr.send();
-  });
-
-  window.otaCheck = async () => {
-    const url = document.getElementById('otaUrlInput').value.trim();
-    if (!url) { otaSetStatus('⚠️ Ingresa la URL del servidor', 'err'); return; }
-    localStorage.setItem('otaUrl', url);
-    otaSetStatus('🔍 Buscando…');
-    try {
-      let data;
-      /* 1. Intenta via AndroidBridge si está disponible (sin CORS) */
-      if (isAndroid && typeof AndroidBridge.descargarTexto === 'function') {
-        const txt = AndroidBridge.descargarTexto(url);
-        data = JSON.parse(txt);
-      } else {
-        /* 2. Fallback: XMLHttpRequest */
-        const txt = await xhrGet(url, 'text');
-        data = JSON.parse(txt);
-      }
-      if (!data.version || !data.url) throw new Error('Respuesta inválida del servidor');
-
-      document.getElementById('otaVerNueva').textContent = 'v' + data.version;
-      window._otaData = data;
-
-      if (otaCompararVersiones(OTA_VERSION_ACTUAL, data.version) < 0) {
-        otaSetStatus('✅ ¡Nueva versión disponible! v' + data.version, 'ok');
-        otaMostrarBarra(data);
-      } else {
-        otaSetStatus('✅ Ya tienes la versión más reciente', 'ok');
-      }
-    } catch(e) {
-      otaSetStatus('❌ Error: ' + e.message, 'err');
-    }
-  };
-
-  const otaMostrarBarra = (data) => {
-    const bar = document.getElementById('otaBar');
-    const sub = document.getElementById('otaBarSub');
-    if (!bar) return;
-    sub.textContent = 'v' + OTA_VERSION_ACTUAL + ' → v' + data.version + (data.notas ? ' · ' + data.notas : '');
-    bar.classList.remove('hidden');
-    window._otaData = data;
-  };
-
-  window.otaSkip = () => {
-    if (window._otaData) localStorage.setItem('otaSkipVer', window._otaData.version);
-    document.getElementById('otaBar').classList.add('hidden');
-  };
-
+  const otaCompararVersiones = (a,b) => { const pa=a.split('.').map(Number),pb=b.split('.').map(Number); for(let i=0;i<3;i++){if((pa[i]||0)<(pb[i]||0))return -1;if((pa[i]||0)>(pb[i]||0))return 1;} return 0; };
+  const otaCargarConfig = () => ({ url:localStorage.getItem('otaUrl')||'', auto:localStorage.getItem('otaAuto')==='true', skipVer:localStorage.getItem('otaSkipVer')||'' });
+  window.otaGuardarConfig = () => { localStorage.setItem('otaUrl',document.getElementById('otaUrlInput').value.trim()); localStorage.setItem('otaAuto',document.getElementById('otaAutoCheck').checked); };
+  const otaSetStatus = (msg,tipo='') => { const el=document.getElementById('otaStatus'); if(!el)return; el.textContent=msg; el.className='ota-status'+(tipo?' '+tipo:''); };
+  window.abrirOTA = () => { const cfg=otaCargarConfig(); document.getElementById('otaUrlInput').value=cfg.url; document.getElementById('otaAutoCheck').checked=cfg.auto; document.getElementById('otaVerActual').textContent='v'+OTA_VERSION_ACTUAL; document.getElementById('otaVerNueva').textContent='—'; otaSetStatus(''); document.getElementById('modalOTA').classList.add('open'); };
+  window.cerrarModalOTA = () => { otaGuardarConfig(); document.getElementById('modalOTA').classList.remove('open'); };
+  const xhrGet = (url,responseType) => new Promise((resolve,reject) => { const xhr=new XMLHttpRequest(); xhr.open('GET',url+(url.includes('?')?'&':'?')+'_t='+Date.now(),true); if(responseType) xhr.responseType=responseType; xhr.timeout=15000; xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300)resolve(xhr.response);else reject(new Error('HTTP '+xhr.status));}; xhr.onerror=()=>reject(new Error('Sin conexión o CORS bloqueado')); xhr.ontimeout=()=>reject(new Error('Tiempo de espera agotado')); xhr.send(); });
+  window.otaCheck = async () => { const url=document.getElementById('otaUrlInput').value.trim(); if(!url){otaSetStatus('⚠️ Ingresa la URL del servidor','err');return;} localStorage.setItem('otaUrl',url); otaSetStatus('🔍 Buscando…'); try{ let data; if(isAndroid&&typeof AndroidBridge.descargarTexto==='function'){data=JSON.parse(AndroidBridge.descargarTexto(url));}else{data=JSON.parse(await xhrGet(url,'text'));} if(!data.version||!data.url)throw new Error('Respuesta inválida'); document.getElementById('otaVerNueva').textContent='v'+data.version; window._otaData=data; if(otaCompararVersiones(OTA_VERSION_ACTUAL,data.version)<0){otaSetStatus('✅ ¡Nueva versión disponible! v'+data.version,'ok');otaMostrarBarra(data);}else{otaSetStatus('✅ Ya tienes la versión más reciente','ok');} }catch(e){otaSetStatus('❌ Error: '+e.message,'err');} };
+  const otaMostrarBarra = data => { const bar=document.getElementById('otaBar'),sub=document.getElementById('otaBarSub'); if(!bar)return; sub.textContent='v'+OTA_VERSION_ACTUAL+' → v'+data.version+(data.notas?' · '+data.notas:''); bar.classList.remove('hidden'); bar.style.display='flex'; window._otaData=data; };
+  window.otaSkip = () => { if(window._otaData) localStorage.setItem('otaSkipVer',window._otaData.version); const bar=document.getElementById('otaBar'); bar.classList.add('hidden'); bar.style.display='none'; };
   window.otaInstalar = async () => {
-    const data = window._otaData;
-    if (!data || !data.url) { showToast('❌ Sin datos de actualización'); return; }
-    document.getElementById('otaBar').classList.add('hidden');
+    const data=window._otaData; if(!data||!data.url){showToast('❌ Sin datos de actualización');return;}
+    const bar=document.getElementById('otaBar'); bar.classList.add('hidden'); bar.style.display='none';
     document.getElementById('modalOTA').classList.remove('open');
-
-    const overlay = document.getElementById('otaProgressOverlay');
-    const barEl   = document.getElementById('otaProgressBar');
-    const pct     = document.getElementById('otaProgressPct');
-    const sub     = document.getElementById('otaProgressSub');
-    overlay.classList.add('show');
-    barEl.style.width = '0%';
-    pct.textContent = '0%';
-    sub.textContent = 'Descargando v' + data.version + '…';
-
-    const setProgress = (p) => {
-      barEl.style.width = p + '%';
-      pct.textContent   = p + '%';
-    };
-
-    try {
-      let htmlText = '';
-
-      /* ── VÍA 1: AndroidBridge.descargarHTML (sin CORS, recomendado) ── */
-      if (isAndroid && typeof AndroidBridge.descargarHTML === 'function') {
-        sub.textContent = 'Descargando vía app…';
-        setProgress(30);
-        htmlText = AndroidBridge.descargarHTML(data.url);
-        setProgress(100);
-
-      /* ── VÍA 2: XMLHttpRequest con progreso (fallback web/WebView) ── */
-      } else {
-        await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('GET', data.url, true);
-          xhr.responseType = 'text';
-          xhr.timeout = 30000;
-          xhr.onprogress = e => {
-            if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 95));
-            else setProgress(Math.min(50, Math.round(e.loaded / 1024)));
-          };
-          xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              htmlText = xhr.responseText;
-              setProgress(100);
-              resolve();
-            } else {
-              reject(new Error('HTTP ' + xhr.status));
-            }
-          };
-          xhr.onerror   = () => reject(new Error('Sin conexión o CORS bloqueado.
-Verifica que la URL es correcta y pública.'));
-          xhr.ontimeout = () => reject(new Error('Tiempo de espera agotado (30s)'));
-          xhr.send();
-        });
-      }
-
-      if (!htmlText || htmlText.length < 100) throw new Error('Archivo descargado vacío o inválido');
-
-      sub.textContent = '✅ Descarga completa. Instalando…';
-      localStorage.setItem('otaUrl', localStorage.getItem('otaUrl') || '');
-
-      setTimeout(() => {
-        overlay.classList.remove('show');
-        if (isAndroid && typeof AndroidBridge.reemplazarHTML === 'function') {
-          AndroidBridge.reemplazarHTML(htmlText);
-        } else {
-          const a   = document.createElement('a');
-          a.download = 'recibo-chances-v' + data.version + '.html';
-          a.href     = URL.createObjectURL(new Blob([htmlText], {type:'text/html'}));
-          a.click();
-          showToast('⬇️ Descargado. Abre el nuevo archivo.');
-        }
-      }, 800);
-
-    } catch(e) {
-      overlay.classList.remove('show');
-      showToast('❌ Error al descargar: ' + e.message);
-    }
+    const overlay=document.getElementById('otaProgressOverlay'),barEl=document.getElementById('otaProgressBar'),pct=document.getElementById('otaProgressPct'),sub=document.getElementById('otaProgressSub');
+    overlay.classList.add('show'); barEl.style.width='0%'; pct.textContent='0%'; sub.textContent='Descargando v'+data.version+'…';
+    const setProgress=p=>{barEl.style.width=p+'%';pct.textContent=p+'%';};
+    try{
+      let htmlText='';
+      if(isAndroid&&typeof AndroidBridge.descargarHTML==='function'){sub.textContent='Descargando vía app…';setProgress(30);htmlText=AndroidBridge.descargarHTML(data.url);setProgress(100);}
+      else{await new Promise((resolve,reject)=>{const xhr=new XMLHttpRequest();xhr.open('GET',data.url,true);xhr.responseType='text';xhr.timeout=30000;xhr.onprogress=e=>{if(e.lengthComputable)setProgress(Math.round((e.loaded/e.total)*95));else setProgress(Math.min(50,Math.round(e.loaded/1024)));};xhr.onload=()=>{if(xhr.status>=200&&xhr.status<300){htmlText=xhr.responseText;setProgress(100);resolve();}else reject(new Error('HTTP '+xhr.status));};xhr.onerror=()=>reject(new Error('Sin conexión o CORS bloqueado'));xhr.ontimeout=()=>reject(new Error('Tiempo agotado'));xhr.send();});}
+      if(!htmlText||htmlText.length<100)throw new Error('Archivo vacío o inválido');
+      sub.textContent='✅ Descarga completa. Instalando…';
+      setTimeout(()=>{overlay.classList.remove('show');if(isAndroid&&typeof AndroidBridge.reemplazarHTML==='function'){AndroidBridge.reemplazarHTML(htmlText);}else{const a=document.createElement('a');a.download='recibo-chances-v'+data.version+'.html';a.href=URL.createObjectURL(new Blob([htmlText],{type:'text/html'}));a.click();showToast('⬇️ Descargado. Abre el nuevo archivo.');}},800);
+    }catch(e){overlay.classList.remove('show');showToast('❌ Error: '+e.message);}
   };
-
-  /* Auto-check al cargar la app */
-  const otaAutoCheckAlInicio = async () => {
-    const cfg = otaCargarConfig();
-    if (!cfg.auto || !cfg.url) return;
-    try {
-      let data;
-      if (isAndroid && typeof AndroidBridge.descargarTexto === 'function') {
-        const txt = AndroidBridge.descargarTexto(cfg.url);
-        data = JSON.parse(txt);
-      } else {
-        const txt = await xhrGet(cfg.url, 'text');
-        data = JSON.parse(txt);
-      }
-      if (!data.version || !data.url) return;
-      if (otaCompararVersiones(OTA_VERSION_ACTUAL, data.version) < 0) {
-        if (data.version === cfg.skipVer) return; // usuario lo saltó antes
-        setTimeout(() => otaMostrarBarra(data), 2000); // espera 2s para no interrumpir carga
-      }
-    } catch(e) { /* silencioso si falla la red */ }
-  };
+  const otaAutoCheckAlInicio = async () => { const cfg=otaCargarConfig(); if(!cfg.auto||!cfg.url)return; try{let data;if(isAndroid&&typeof AndroidBridge.descargarTexto==='function'){data=JSON.parse(AndroidBridge.descargarTexto(cfg.url));}else{data=JSON.parse(await xhrGet(cfg.url,'text'));}if(!data.version||!data.url)return;if(otaCompararVersiones(OTA_VERSION_ACTUAL,data.version)<0){if(data.version===cfg.skipVer)return;setTimeout(()=>otaMostrarBarra(data),2000);}}catch(e){} };
   otaAutoCheckAlInicio();
 
   /* BLUETOOTH */
@@ -1341,13 +1015,7 @@ Verifica que la URL es correcta y pública.'));
     const body=document.getElementById('btBody');
     body.innerHTML='<div class="bt-loading"><div class="bt-spinner"></div><p>Buscando impresoras…</p></div>';
     document.getElementById('modalBluetooth').classList.add('open');
-    setTimeout(()=>{
-      try{
-        const dispositivos=JSON.parse(AndroidBridge.obtenerDispositivosBT());
-        if(!dispositivos.length){body.innerHTML='<div class="bt-empty"><div style="font-size:34px;margin-bottom:6px">📡</div><p>No hay impresoras vinculadas.</p></div><div class="bt-tip">💡 Vincúlala en Ajustes → Bluetooth.</div>';return;}
-        body.innerHTML=`<p style="font-size:10px;color:#888;margin-bottom:8px;text-align:center">Selecciona tu impresora</p><div>${dispositivos.map(d=>`<div class="bt-device" onclick="imprimirEn('${d.mac}','${d.nombre.replace(/'/g,"\\'")}')"><div><div class="bt-device-name">🖨️ ${d.nombre}</div><div class="bt-device-mac">${d.mac}</div></div><div class="bt-device-arrow">›</div></div>`).join('')}</div><div class="bt-tip">💡 ¿No ves tu impresora? Vincúlala en Ajustes → Bluetooth.</div>`;
-      }catch(e){body.innerHTML='<div class="bt-empty">❌ Error al leer dispositivos.</div>';}
-    },600);
+    setTimeout(()=>{ try{ const dispositivos=JSON.parse(AndroidBridge.obtenerDispositivosBT()); if(!dispositivos.length){body.innerHTML='<div class="bt-empty"><div style="font-size:34px;margin-bottom:6px">📡</div><p>No hay impresoras vinculadas.</p></div><div class="bt-tip">💡 Vincúlala en Ajustes → Bluetooth.</div>';return;} body.innerHTML=`<p style="font-size:10px;color:#888;margin-bottom:8px;text-align:center">Selecciona tu impresora</p><div>${dispositivos.map(d=>`<div class="bt-device" onclick="imprimirEn('${d.mac}','${d.nombre.replace(/'/g,"\\'")}')"><div><div class="bt-device-name">🖨️ ${d.nombre}</div><div class="bt-device-mac">${d.mac}</div></div><div class="bt-device-arrow">›</div></div>`).join('')}</div><div class="bt-tip">💡 ¿No ves tu impresora? Vincúlala en Ajustes → Bluetooth.</div>`; }catch(e){body.innerHTML='<div class="bt-empty">❌ Error al leer dispositivos.</div>';} },600);
   };
   window.imprimirEn = (mac,nombre) => {
     document.getElementById('btBody').innerHTML=`<div class="bt-loading"><div class="bt-spinner"></div><p>Conectando con <strong>${nombre}</strong>…</p></div>`;
